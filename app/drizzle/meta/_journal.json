@@ -8,6 +8,13 @@
       "when": 1722470400000,
       "tag": "0000_init",
       "breakpoints": false
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787864037070,
+      "tag": "0001_kind_tattoo",
+      "breakpoints": true
     }
   ]
 }
