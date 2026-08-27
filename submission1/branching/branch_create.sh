@@ -14,5 +14,10 @@ databricks postgres create-branch projects/meridian-bank forecast \
 databricks postgres create-endpoint projects/meridian-bank/branches/forecast primary --replace-existing \
   --json '{"spec":{"endpoint_type":"ENDPOINT_TYPE_READ_WRITE","autoscaling_limit_min_cu":0.5,"autoscaling_limit_max_cu":2.0,"suspend_timeout_duration":"300s"}}' -p "$P"
 
-# git side: dev branch off main for the schema change, promoted via merge (see git_history.txt)
-#   git checkout -b dev && ... && git checkout main && git merge --no-ff dev
+# git side: named development branch 'dev' created off 'main', then promoted via merge.
+git checkout main
+git checkout -b dev                       # create dev branch off main
+#   ... make schema change on dev (see agent_change/) ...
+git checkout main
+git merge --no-ff dev                      # promote validated dev into main
+# (see git_history.txt for the resulting branch-off-main + merge graph)
