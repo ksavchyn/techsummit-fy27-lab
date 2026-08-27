@@ -1,0 +1,22 @@
+HERO QUESTION (a decision, not a lookup):
+  "Which at-risk customer do we act on now, and what retention offer do we approve?"
+
+The app answers it as a decision loop — surface -> prescribe -> approve -> act -> reflect —
+for hero customer CUST-0001955 (affluent, San Francisco, maturing CD, rate-shopping; ACT NOW).
+
+DECISION CHAIN — linked record IDs across the exports:
+  1. SURFACE  (Visualize)  view_result.json        -> customer_id = CUST-0001955, flag = ACT NOW,
+                                                       decision_priority from revenue_at_risk x attrition (0.893)
+     source (synced, read-only): retention.gold_open_atrisk / gold_nba_recommendations  (customer_id CUST-0001955)
+  2. TRIGGER               state_table.json         -> event_id 1 (schedule), event_id 2 (system_update)
+  3. EXPLAIN + WHAT-IF (Assist) assist_log.jsonl     -> customer_id CUST-0001955 (explanation + what_if),
+                                                       retrieval_source = lakebase_search:ops.rm_notes (note_id 1, 4)
+  4. DRAFT                 drafted_sample.md         -> retention memo for CUST-0001955
+  5. PROPOSE -> APPROVE (Act) writeback_table.json   -> action_id 1, proposed_action match_competitor_rate @ 4.50% APY,
+                                                       approval_status approved, approver "Alan Silva (RM)",
+                                                       created_at < committed_at
+  6. RECORD DECISION       state_table.json         -> event_id 3 (PROPOSED), event_id 4 (APPROVED, action_id 1)
+  7. CLOSED LOOP (next read) view re-read           -> ops.rm_cases case_id 1 status = working,
+                                                       latest_action_status = approved
+
+Key linking IDs: customer_id=CUST-0001955 | case_id=1 | note_id=1,4 | action_id=1 | workflow event_id=1..4
