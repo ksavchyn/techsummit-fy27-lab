@@ -13,7 +13,9 @@ variables:
   postgres_project:
     description: Full Lakebase Postgres project resource name. Obtain by running `databricks postgres list-projects`, select the desired item from the output array and use its .name value.
   serving_endpoint_name:
-    description: Serving endpoint name
+    description: Chat serving endpoint name
+  serving_embeddings_name:
+    description: Embeddings serving endpoint name
 
 resources:
   apps:
@@ -45,6 +47,10 @@ resources:
           serving_endpoint:
             name: ${var.serving_endpoint_name}
             permission: CAN_QUERY
+        - name: embeddings-endpoint
+          serving_endpoint:
+            name: ${var.serving_embeddings_name}
+            permission: CAN_QUERY
 
 targets:
   default:
@@ -59,3 +65,4 @@ targets:
       postgres_database: projects/meridian-bank/branches/production/databases/databricks-postgres
       postgres_project: projects/meridian-bank
       serving_endpoint_name: databricks-claude-opus-4-8
+      serving_embeddings_name: databricks-gte-large-en
