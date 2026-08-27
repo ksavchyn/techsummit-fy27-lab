@@ -1,4 +1,11 @@
-* 68a3bbb (HEAD -> dev) Build 2 · layer 3: Act — write-back with human approval + closed loop; hero question + exports
+* 7e581f6 (HEAD -> dev) Build 2 app · layer 3 Act: propose -> human approve/correct/reject -> write ops.retention_actions + workflow_events; closed-loop queue refresh
+* 744a809 (origin/dev) Build 2 app · layer 2 Assist: LLM why-flagged + what-if + memo (hybrid Lakebase Search retrieval over ops.rm_notes) via claude-opus-4-8; Genie tab
+* 3a3c4c6 Build 2 app · layer 1 Visualize: ranked/flagged at-risk queue (decision_priority) reading synced gold + live case state
+* f5e056b Build 2 app · layer 0: scaffold AppKit (lakebase+genie+serving) for meridian-rm
+* b122822 Add gateway endpoint handoff for platform eng (Build 3 prep)
+* 6adb8d8 Build 2: submission2.zip
+* 9d48064 Build 2: refresh git_history.txt
+* 68a3bbb Build 2 · layer 3: Act — write-back with human approval + closed loop; hero question + exports
 * 879988f Build 2 · layer 2: Assist — LLM explain + what-if + memo drafted from Lakebase Search retrieval
 * 4b6baf6 Build 2 · layer 1: Visualize — ranked/flagged at-risk live view + system-update trigger
 * 6b58df8 Build 2 · layer 0: writable action + workflow-state tables (ops.retention_actions, ops.workflow_events)
@@ -12,6 +19,6 @@
 | |\  
 | |/  
 |/|   
-* | 60bebef (origin/dev) Agentic change: add derived priority_score to ops.rm_cases
+* | 60bebef Agentic change: add derived priority_score to ops.rm_cases
 |/  
 * 0b65242 Baseline: ops schema, search columns, sync scripts, README
