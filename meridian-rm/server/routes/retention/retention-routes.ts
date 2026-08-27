@@ -346,5 +346,176 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
         res.status(500).json({ error: 'Memo drafting failed' });
       }
     });
+
+    // ── ACT: propose a retention action (human-in-the-loop, pending approval) ──
+    app.post('/api/retention/propose', async (req, res) => {
+      const parsed = z
+        .object({
+          customer_id: z.string().min(1),
+          proposed_action: z.string().min(1),
+          offer_product_id: z.string().optional(),
+          offer_rate_apy: z.number().nullable().optional(),
+          rationale: z.string().optional(),
+        })
+        .safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: 'customer_id and proposed_action required' });
+        return;
+      }
+      const b = parsed.data;
+      try {
+        const ins = await appkit.lakebase.query(
+          `INSERT INTO ops.retention_actions
+             (customer_id, proposed_action, offer_product_id, offer_rate_apy, rationale, approval_status)
+           VALUES ($1, $2, $3, $4, $5, 'proposed')
+           RETURNING action_id, customer_id, proposed_action, offer_product_id, offer_rate_apy,
+                     rationale, approval_status, created_at, committed_at`,
+          [b.customer_id, b.proposed_action, b.offer_product_id ?? null, b.offer_rate_apy ?? null, b.rationale ?? null],
+        );
+        const action = ins.rows[0];
+        await appkit.lakebase.query(
+          `INSERT INTO ops.workflow_events (event_type, trigger_source, customer_id, action_id, detail)
+           VALUES ('decision', 'user_open', $1, $2, 'Action PROPOSED by assistant, pending human approval')`,
+          [b.customer_id, action.action_id],
+        );
+        res.status(201).json(action);
+      } catch (err) {
+        console.error('[retention] propose failed:', err);
+        res.status(500).json({ error: 'Propose failed' });
+      }
+    });
+
+    // ── ACT: approve/correct + commit → closed loop (writes ops.* only) ───────
+    app.post('/api/retention/approve', async (req, res) => {
+      const parsed = z
+        .object({
+          action_id: z.number().int(),
+          approver: z.string().min(1),
+          // optional corrections applied at approval time
+          proposed_action: z.string().optional(),
+          offer_product_id: z.string().optional(),
+          offer_rate_apy: z.number().nullable().optional(),
+          rationale: z.string().optional(),
+          corrected: z.boolean().optional(),
+        })
+        .safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: 'action_id and approver required' });
+        return;
+      }
+      const b = parsed.data;
+      try {
+        const found = await appkit.lakebase.query(
+          `SELECT customer_id FROM ops.retention_actions WHERE action_id = $1`,
+          [b.action_id],
+        );
+        if (found.rows.length === 0) {
+          res.status(404).json({ error: 'Action not found' });
+          return;
+        }
+        const customerId = String(found.rows[0].customer_id);
+
+        // Ensure/flip an operational case to 'working' (never touches retention.*)
+        const existing = await appkit.lakebase.query(
+          `SELECT case_id FROM ops.rm_cases WHERE customer_id = $1 AND status <> 'won'
+           ORDER BY opened_at LIMIT 1`,
+          [customerId],
+        );
+        let caseId: number;
+        if (existing.rows.length > 0) {
+          caseId = Number(existing.rows[0].case_id);
+          await appkit.lakebase.query(
+            `UPDATE ops.rm_cases SET status = 'working', updated_at = now() WHERE case_id = $1`,
+            [caseId],
+          );
+        } else {
+          const created = await appkit.lakebase.query(
+            `INSERT INTO ops.rm_cases (customer_id, status, priority, assigned_rm)
+             VALUES ($1, 'working', 'high', $2) RETURNING case_id`,
+            [customerId, b.approver],
+          );
+          caseId = Number(created.rows[0].case_id);
+        }
+
+        // Commit the action: approved + approver + committed_at, applying any corrections.
+        const status = b.corrected ? 'corrected' : 'approved';
+        const upd = await appkit.lakebase.query(
+          `UPDATE ops.retention_actions
+             SET approval_status = $2,
+                 approver        = $3,
+                 committed_at    = now(),
+                 case_id         = $4,
+                 proposed_action = COALESCE($5, proposed_action),
+                 offer_product_id = COALESCE($6, offer_product_id),
+                 offer_rate_apy  = COALESCE($7, offer_rate_apy),
+                 rationale       = COALESCE($8, rationale)
+           WHERE action_id = $1
+           RETURNING action_id, case_id, customer_id, proposed_action, offer_product_id,
+                     offer_rate_apy, rationale, approval_status, approver, created_at, committed_at`,
+          [
+            b.action_id,
+            status,
+            b.approver,
+            caseId,
+            b.proposed_action ?? null,
+            b.offer_product_id ?? null,
+            b.offer_rate_apy ?? null,
+            b.rationale ?? null,
+          ],
+        );
+
+        await appkit.lakebase.query(
+          `INSERT INTO ops.workflow_events (event_type, trigger_source, customer_id, action_id, detail)
+           VALUES ('decision', 'user_open', $1, $2, $3)`,
+          [
+            customerId,
+            b.action_id,
+            `Action ${status.toUpperCase()} and committed by ${b.approver}`,
+          ],
+        );
+
+        res.json(upd.rows[0]);
+      } catch (err) {
+        console.error('[retention] approve failed:', err);
+        res.status(500).json({ error: 'Approve failed' });
+      }
+    });
+
+    // ── ACT: reject a proposed action ─────────────────────────────────────────
+    app.post('/api/retention/reject', async (req, res) => {
+      const parsed = z
+        .object({ action_id: z.number().int(), approver: z.string().min(1) })
+        .safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: 'action_id and approver required' });
+        return;
+      }
+      try {
+        const upd = await appkit.lakebase.query(
+          `UPDATE ops.retention_actions
+             SET approval_status = 'rejected', approver = $2, committed_at = now()
+           WHERE action_id = $1
+           RETURNING action_id, customer_id, approval_status`,
+          [parsed.data.action_id, parsed.data.approver],
+        );
+        if (upd.rows.length === 0) {
+          res.status(404).json({ error: 'Action not found' });
+          return;
+        }
+        await appkit.lakebase.query(
+          `INSERT INTO ops.workflow_events (event_type, trigger_source, customer_id, action_id, detail)
+           VALUES ('decision', 'user_open', $1, $2, $3)`,
+          [
+            String(upd.rows[0].customer_id),
+            parsed.data.action_id,
+            `Action REJECTED by ${parsed.data.approver}`,
+          ],
+        );
+        res.json(upd.rows[0]);
+      } catch (err) {
+        console.error('[retention] reject failed:', err);
+        res.status(500).json({ error: 'Reject failed' });
+      }
+    });
   });
 }

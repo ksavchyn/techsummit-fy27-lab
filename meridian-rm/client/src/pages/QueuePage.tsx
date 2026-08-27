@@ -53,9 +53,11 @@ function StatusBadge({ label }: { label: string | null }) {
 export function QueuePage({
   onSelect,
   selectedId,
+  refreshKey,
 }: {
   onSelect?: (id: string) => void;
   selectedId?: string | null;
+  refreshKey?: number;
 }) {
   const [rows, setRows] = useState<QueueRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,7 @@ export function QueuePage({
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, refreshKey]);
 
   const actNow = rows.filter((r) => r.flag === 'ACT NOW').length;
   const totalRevAtRisk = rows.reduce((s, r) => s + num(r.revenue_at_risk_usd), 0);

@@ -11,10 +11,23 @@ import {
   Spinner,
 } from '@databricks/appkit-ui/react';
 import { useCallback, useEffect, useState } from 'react';
-import { Sparkles, FlaskConical, FileText } from 'lucide-react';
+import { Sparkles, FlaskConical, FileText, CheckCircle2, XCircle, Send } from 'lucide-react';
 import { usd, pct, apy } from '../lib/format';
 
-interface CustomerDetail {
+interface CommittedAction {
+  action_id: number;
+  customer_id: string;
+  proposed_action: string;
+  offer_product_id: string | null;
+  offer_rate_apy: string | null;
+  rationale: string | null;
+  approval_status: string;
+  approver: string | null;
+  created_at: string;
+  committed_at: string | null;
+}
+
+export interface CustomerDetail {
   customer_id: string;
   customer_display_name: string;
   tier: string;
@@ -63,10 +76,12 @@ export function DetailSheet({
   customerId,
   open,
   onClose,
+  onCommitted,
 }: {
   customerId: string | null;
   open: boolean;
   onClose: () => void;
+  onCommitted?: () => void;
 }) {
   const [detail, setDetail] = useState<CustomerDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -83,6 +98,16 @@ export function DetailSheet({
   const [memoLoading, setMemoLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
+  // Act state — propose -> (edit/correct) -> approve/reject, human in the loop.
+  const [actAction, setActAction] = useState('');
+  const [actOffer, setActOffer] = useState('');
+  const [actRate, setActRate] = useState('');
+  const [actRationale, setActRationale] = useState('');
+  const [approver, setApprover] = useState('Alan Silva (RM)');
+  const [proposal, setProposal] = useState<CommittedAction | null>(null);
+  const [committed, setCommitted] = useState<CommittedAction | null>(null);
+  const [actLoading, setActLoading] = useState(false);
+
   const reset = () => {
     setDetail(null);
     setExplanation(null);
@@ -92,21 +117,39 @@ export function DetailSheet({
     setMemoNotes([]);
     setMemoMethod(null);
     setErr(null);
+    setProposal(null);
+    setCommitted(null);
+    setActAction('');
+    setActOffer('');
+    setActRate('');
+    setActRationale('');
   };
+
+  const loadDetail = useCallback(
+    (id: string) =>
+      fetch(`/api/retention/customer/${encodeURIComponent(id)}`)
+        .then((r) => {
+          if (!r.ok) throw new Error(`Lookup failed: ${r.status}`);
+          return r.json() as Promise<CustomerDetail>;
+        }),
+    [],
+  );
 
   useEffect(() => {
     if (!open || !customerId) return;
     reset();
     setLoading(true);
-    fetch(`/api/retention/customer/${encodeURIComponent(customerId)}`)
-      .then((r) => {
-        if (!r.ok) throw new Error(`Lookup failed: ${r.status}`);
-        return r.json() as Promise<CustomerDetail>;
+    loadDetail(customerId)
+      .then((d) => {
+        setDetail(d);
+        // Pre-fill the action from the model's next-best action (RM can correct before commit).
+        setActAction(d.recommended_action ?? 'match_competitor_rate');
+        setActOffer(d.recommended_offer_product_id ?? d.atrisk_product_id ?? '');
+        setActRate(d.recommended_rate_apy ?? '');
       })
-      .then(setDetail)
       .catch((e) => setErr(e instanceof Error ? e.message : 'Failed to load customer'))
       .finally(() => setLoading(false));
-  }, [open, customerId]);
+  }, [open, customerId, loadDetail]);
 
   const post = useCallback(async (path: string, body: unknown) => {
     const r = await fetch(path, {
@@ -169,6 +212,85 @@ export function DetailSheet({
       setMemoLoading(false);
     }
   };
+
+  // ── ACT ──────────────────────────────────────────────────────────────────
+  const rateNum = () => {
+    const n = parseFloat(actRate);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const runPropose = async () => {
+    if (!customerId || !actAction.trim()) return;
+    setActLoading(true);
+    setErr(null);
+    try {
+      const d = (await post('/api/retention/propose', {
+        customer_id: customerId,
+        proposed_action: actAction.trim(),
+        offer_product_id: actOffer.trim() || undefined,
+        offer_rate_apy: rateNum(),
+        rationale: actRationale.trim() || undefined,
+      })) as CommittedAction;
+      setProposal(d);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Propose failed');
+    } finally {
+      setActLoading(false);
+    }
+  };
+
+  const runApprove = async () => {
+    if (!proposal || !approver.trim()) return;
+    // Corrected if the RM edited any field away from what was proposed.
+    const corrected =
+      actAction.trim() !== proposal.proposed_action ||
+      (actOffer.trim() || null) !== (proposal.offer_product_id ?? null) ||
+      rateNum() !== (proposal.offer_rate_apy != null ? Number(proposal.offer_rate_apy) : null) ||
+      (actRationale.trim() || null) !== (proposal.rationale ?? null);
+    setActLoading(true);
+    setErr(null);
+    try {
+      const d = (await post('/api/retention/approve', {
+        action_id: proposal.action_id,
+        approver: approver.trim(),
+        corrected,
+        proposed_action: actAction.trim(),
+        offer_product_id: actOffer.trim() || undefined,
+        offer_rate_apy: rateNum(),
+        rationale: actRationale.trim() || undefined,
+      })) as CommittedAction;
+      setCommitted(d);
+      setProposal(null);
+      if (customerId) setDetail(await loadDetail(customerId)); // closed loop: refresh case state
+      onCommitted?.(); // refresh the queue behind the sheet
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Approve failed');
+    } finally {
+      setActLoading(false);
+    }
+  };
+
+  const runReject = async () => {
+    if (!proposal || !approver.trim()) return;
+    setActLoading(true);
+    setErr(null);
+    try {
+      const d = (await post('/api/retention/reject', {
+        action_id: proposal.action_id,
+        approver: approver.trim(),
+      })) as CommittedAction;
+      setCommitted(d);
+      setProposal(null);
+      onCommitted?.();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Reject failed');
+    } finally {
+      setActLoading(false);
+    }
+  };
+
+  const field =
+    'w-full rounded-md border bg-background px-2 py-1 text-sm';
 
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
@@ -309,6 +431,119 @@ export function DetailSheet({
                 </div>
               </section>
 
+              <Separator />
+
+              {/* ACT */}
+              <section className="space-y-3">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Send className="h-4 w-4" /> Act — approve a retention action
+                </h3>
+
+                {committed ? (
+                  <div
+                    className={`rounded-md border p-3 text-sm ${
+                      committed.approval_status === 'rejected'
+                        ? 'bg-destructive/10'
+                        : 'bg-emerald-500/10'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 font-medium">
+                      {committed.approval_status === 'rejected' ? (
+                        <XCircle className="h-4 w-4" />
+                      ) : (
+                        <CheckCircle2 className="h-4 w-4" />
+                      )}
+                      Action #{committed.action_id} {committed.approval_status} by {committed.approver}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {committed.proposed_action}
+                      {committed.offer_product_id ? ` · ${committed.offer_product_id}` : ''}
+                      {committed.offer_rate_apy ? ` @ ${apy(committed.offer_rate_apy)}` : ''}
+                      {committed.committed_at ? ` · committed ${committed.committed_at}` : ''}
+                    </div>
+                    <div className="text-xs mt-1">
+                      Case is now <Badge variant="default">{detail.case_status ?? 'working'}</Badge> —
+                      reflected on the next queue read (closed loop).
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 rounded-md border p-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="text-xs space-y-1">
+                        <span className="text-muted-foreground">Action</span>
+                        <input
+                          className={field}
+                          value={actAction}
+                          onChange={(e) => setActAction(e.target.value)}
+                          placeholder="match_competitor_rate"
+                        />
+                      </label>
+                      <label className="text-xs space-y-1">
+                        <span className="text-muted-foreground">Offer product</span>
+                        <input
+                          className={field}
+                          value={actOffer}
+                          onChange={(e) => setActOffer(e.target.value)}
+                          placeholder="CD-12M"
+                        />
+                      </label>
+                      <label className="text-xs space-y-1">
+                        <span className="text-muted-foreground">Offer rate (APY, e.g. 0.045)</span>
+                        <input
+                          className={field}
+                          value={actRate}
+                          onChange={(e) => setActRate(e.target.value)}
+                          placeholder="0.0450"
+                          inputMode="decimal"
+                        />
+                      </label>
+                      <label className="text-xs space-y-1">
+                        <span className="text-muted-foreground">Approver</span>
+                        <input
+                          className={field}
+                          value={approver}
+                          onChange={(e) => setApprover(e.target.value)}
+                        />
+                      </label>
+                    </div>
+                    <Textarea
+                      placeholder="Rationale (grounds the decision — from the explanation / what-if / memo)"
+                      value={actRationale}
+                      onChange={(e) => setActRationale(e.target.value)}
+                      rows={2}
+                    />
+
+                    {!proposal ? (
+                      <Button size="sm" onClick={runPropose} disabled={actLoading || !actAction.trim()}>
+                        {actLoading ? <Spinner className="mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                        Propose action
+                      </Button>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="text-xs text-muted-foreground">
+                          Proposed action #{proposal.action_id} ({proposal.approval_status}) — review /
+                          correct the fields above, then a person approves before it commits.
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={runApprove} disabled={actLoading || !approver.trim()}>
+                            {actLoading ? <Spinner className="mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            Approve &amp; commit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={runReject}
+                            disabled={actLoading || !approver.trim()}
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            Reject
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
             </>
           )}
         </div>

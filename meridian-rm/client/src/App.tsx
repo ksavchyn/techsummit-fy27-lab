@@ -24,6 +24,7 @@ function Header() {
 export default function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [queueRefresh, setQueueRefresh] = useState(0);
 
   const openCustomer = (id: string) => {
     setSelected(id);
@@ -41,7 +42,7 @@ export default function App() {
           </TabsList>
 
           <TabsContent value="queue">
-            <QueuePage onSelect={openCustomer} selectedId={selected} />
+            <QueuePage onSelect={openCustomer} selectedId={selected} refreshKey={queueRefresh} />
           </TabsContent>
 
           <TabsContent value="genie">
@@ -61,7 +62,12 @@ export default function App() {
         </Tabs>
       </main>
 
-      <DetailSheet customerId={selected} open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <DetailSheet
+        customerId={selected}
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        onCommitted={() => setQueueRefresh((k) => k + 1)}
+      />
     </div>
   );
 }
