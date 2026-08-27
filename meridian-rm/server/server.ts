@@ -1,14 +1,9 @@
 import { createApp, genie, lakebase, server, serving } from '@databricks/appkit';
-import { setupSampleLakebaseRoutes } from './routes/lakebase/todo-routes';
+import { setupRetentionRoutes } from './routes/retention/retention-routes';
 
 createApp({
-  plugins: [
-    genie(),
-    lakebase(),
-    server(),
-    serving(),
-  ],
+  plugins: [genie(), lakebase(), server(), serving()],
   async onPluginsReady(appkit) {
-    await setupSampleLakebaseRoutes(appkit);
+    setupRetentionRoutes(appkit);
   },
 }).catch(console.error);
