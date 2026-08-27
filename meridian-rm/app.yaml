@@ -8,3 +8,5 @@ env:
     valueFrom: serving-endpoint
   - name: DATABRICKS_EMBEDDINGS_ENDPOINT_NAME
     valueFrom: embeddings-endpoint
+  - name: GATEWAY_CHAT_MODEL
+    value: reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-chat

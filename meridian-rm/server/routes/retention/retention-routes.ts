@@ -81,6 +81,34 @@ function chatContent(result: unknown): string {
   return r?.choices?.[0]?.message?.content ?? JSON.stringify(result);
 }
 
+// Chat via the governed Unity AI Gateway endpoint (OpenAI-compatible /ai-gateway/mlflow/v1).
+// Uses the forwarded end-user token so spend is attributed + rate-limited per user at the gateway.
+const GATEWAY_CHAT_MODEL =
+  process.env.GATEWAY_CHAT_MODEL ?? 'reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-chat';
+function workspaceHost(): string {
+  return (process.env.DATABRICKS_HOST ?? 'https://fe-sandbox-reyden-whisperers.cloud.databricks.com').replace(
+    /\/+$/,
+    '',
+  );
+}
+interface ChatMsg {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+async function gatewayChat(req: Request, messages: ChatMsg[], maxTokens: number): Promise<string> {
+  const token = req.header('x-forwarded-access-token');
+  if (!token) throw new Error('No forwarded user token (enable user authorization on the app)');
+  const resp = await fetch(`${workspaceHost()}/ai-gateway/mlflow/v1/chat/completions`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: GATEWAY_CHAT_MODEL, messages, max_tokens: maxTokens }),
+  });
+  if (!resp.ok) {
+    throw new Error(`gateway ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
+  }
+  return chatContent(await resp.json());
+}
+
 function factSheet(c: Record<string, unknown>): string {
   return [
     `customer_id: ${c.customer_id}`,
@@ -229,21 +257,19 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
           res.status(404).json({ error: 'Customer not found' });
           return;
         }
-        const result = await appkit
-          .serving('chat')
-          .asUser(req)
-          .invoke({
-            max_tokens: 600,
-            messages: [
-              {
-                role: 'system',
-                content:
-                  'You are a retention analyst for a US retail bank. Explain, in 3-5 tight bullet points, WHY this customer is flagged as an attrition risk, citing the specific drivers in the data (rate gap, maturing product, balance outflow, churn signals, tenure/tier). Be concrete and reference the numbers. No preamble.',
-              },
-              { role: 'user', content: factSheet(rows[0]) },
-            ],
-          });
-        res.json({ explanation: chatContent(result) });
+        const explanation = await gatewayChat(
+          req,
+          [
+            {
+              role: 'system',
+              content:
+                'You are a retention analyst for a US retail bank. Explain, in 3-5 tight bullet points, WHY this customer is flagged as an attrition risk, citing the specific drivers in the data (rate gap, maturing product, balance outflow, churn signals, tenure/tier). Be concrete and reference the numbers. No preamble.',
+            },
+            { role: 'user', content: factSheet(rows[0]) },
+          ],
+          600,
+        );
+        res.json({ explanation });
       } catch (err) {
         console.error('[retention] explain failed:', err);
         res.status(500).json({ error: 'Explanation failed' });
@@ -265,24 +291,22 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
           res.status(404).json({ error: 'Customer not found' });
           return;
         }
-        const result = await appkit
-          .serving('chat')
-          .asUser(req)
-          .invoke({
-            max_tokens: 700,
-            messages: [
-              {
-                role: 'system',
-                content:
-                  'You are a retention analyst. Given the customer facts and a what-if scenario the RM is considering, estimate the likely effect on retention probability and on the economics (cost of the offer vs revenue at risk). Reason with the numbers provided, state assumptions, and end with a one-line recommendation. Be concise.',
-              },
-              {
-                role: 'user',
-                content: `CUSTOMER FACTS:\n${factSheet(rows[0])}\n\nWHAT-IF SCENARIO:\n${parsed.data.scenario}`,
-              },
-            ],
-          });
-        res.json({ answer: chatContent(result) });
+        const answer = await gatewayChat(
+          req,
+          [
+            {
+              role: 'system',
+              content:
+                'You are a retention analyst. Given the customer facts and a what-if scenario the RM is considering, estimate the likely effect on retention probability and on the economics (cost of the offer vs revenue at risk). Reason with the numbers provided, state assumptions, and end with a one-line recommendation. Be concise.',
+            },
+            {
+              role: 'user',
+              content: `CUSTOMER FACTS:\n${factSheet(rows[0])}\n\nWHAT-IF SCENARIO:\n${parsed.data.scenario}`,
+            },
+          ],
+          700,
+        );
+        res.json({ answer });
       } catch (err) {
         console.error('[retention] whatif failed:', err);
         res.status(500).json({ error: 'What-if failed' });
@@ -319,26 +343,24 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
             : '(no case notes retrieved)';
 
         // THEN generate.
-        const result = await appkit
-          .serving('chat')
-          .asUser(req)
-          .invoke({
-            max_tokens: 1200,
-            messages: [
-              {
-                role: 'system',
-                content:
-                  'You are a relationship manager at a US retail bank. Draft a concise, professional retention outreach memo in Markdown with sections: Situation, Recommended Offer, Talking Points, Next Step. Ground every claim in the retrieved case notes and the customer facts — do not invent facts. Lead with the model recommended offer. Keep it under ~300 words.',
-              },
-              {
-                role: 'user',
-                content: `CUSTOMER FACTS:\n${factSheet(cust)}\n\nRETRIEVED CASE NOTES (Lakebase Search):\n${notesBlock}`,
-              },
-            ],
-          });
+        const memo = await gatewayChat(
+          req,
+          [
+            {
+              role: 'system',
+              content:
+                'You are a relationship manager at a US retail bank. Draft a concise, professional retention outreach memo in Markdown with sections: Situation, Recommended Offer, Talking Points, Next Step. Ground every claim in the retrieved case notes and the customer facts — do not invent facts. Lead with the model recommended offer. Keep it under ~300 words.',
+            },
+            {
+              role: 'user',
+              content: `CUSTOMER FACTS:\n${factSheet(cust)}\n\nRETRIEVED CASE NOTES (Lakebase Search):\n${notesBlock}`,
+            },
+          ],
+          1200,
+        );
 
         res.json({
-          memo: chatContent(result),
+          memo,
           retrieval: { source: 'lakebase_search:ops.rm_notes', method, notes },
         });
       } catch (err) {

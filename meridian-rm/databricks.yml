@@ -64,5 +64,5 @@ targets:
       postgres_branch: projects/meridian-bank/branches/production
       postgres_database: projects/meridian-bank/branches/production/databases/databricks-postgres
       postgres_project: projects/meridian-bank
-      serving_endpoint_name: meridian-rm-assist-chat
+      serving_endpoint_name: databricks-claude-opus-4-8
       serving_embeddings_name: databricks-gte-large-en
