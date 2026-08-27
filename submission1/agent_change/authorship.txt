@@ -1,0 +1,10 @@
+commit 60bebeff1ca374b4d56bda6baecb2df90dc45998
+Author: Kateryna Savchyn <kateryna.savchyn@databricks.com>
+
+Agentic change: add derived priority_score to ops.rm_cases
+
+Developed and validated on Lakebase branch `dev`, then promoted to `production`.
+Weights balance_at_risk_usd by case priority so the retention app can rank outreach.
+
+Co-authored-by: Isaac <no-reply@databricks.com>
+

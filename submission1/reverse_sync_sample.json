@@ -1,0 +1,57 @@
+[
+  {
+    "_pg_change_type": "insert",
+    "_timestamp": "2026-08-27T19:03:38.165",
+    "_pg_lsn": 48962760,
+    "_pg_xid": 0,
+    "case_id": 1,
+    "customer_id": "CUST-0001955",
+    "status": "open",
+    "priority": "high",
+    "priority_score": 123000.00
+  },
+  {
+    "_pg_change_type": "update_postimage",
+    "_timestamp": "2026-08-27T19:07:20.679",
+    "_pg_lsn": 48974352,
+    "_pg_xid": 2210,
+    "case_id": 1,
+    "customer_id": "CUST-0001955",
+    "status": "working",
+    "priority": "high",
+    "priority_score": 123000.00
+  },
+  {
+    "_pg_change_type": "update_preimage",
+    "_timestamp": "2026-08-27T19:07:20.679",
+    "_pg_lsn": 48974352,
+    "_pg_xid": 2210,
+    "case_id": 1,
+    "customer_id": "CUST-0001955",
+    "status": "open",
+    "priority": "high",
+    "priority_score": 123000.00
+  },
+  {
+    "_pg_change_type": "update_postimage",
+    "_timestamp": "2026-08-27T19:07:20.708",
+    "_pg_lsn": 48974856,
+    "_pg_xid": 2211,
+    "case_id": 1,
+    "customer_id": "CUST-0001955",
+    "status": "won",
+    "priority": "high",
+    "priority_score": 123000.00
+  },
+  {
+    "_pg_change_type": "update_preimage",
+    "_timestamp": "2026-08-27T19:07:20.708",
+    "_pg_lsn": 48974856,
+    "_pg_xid": 2211,
+    "case_id": 1,
+    "customer_id": "CUST-0001955",
+    "status": "working",
+    "priority": "high",
+    "priority_score": 123000.00
+  }
+]

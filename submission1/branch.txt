@@ -1,0 +1,10 @@
+Development branch (Lakebase, off production/main): dev
+  path: projects/meridian-bank/branches/dev  (endpoint: primary, read-write)
+  created from source_branch=production (point-in-time snapshot), no_expiry=true
+
+Git development branch (off main): dev  (see git_history.txt)
+
+Change made on the branch (migration 0003, see agent_change/):
+  ALTER TABLE ops.rm_cases ADD COLUMN priority_score NUMERIC(12,2);
+  UPDATE ... priority_score = balance_at_risk_usd * priority-weight (high 1.5 / med 1.0 / low 0.5)
+  -> validated on 'dev', then promoted to 'production' + merged dev->main in git.

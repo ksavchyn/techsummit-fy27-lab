@@ -1,0 +1,5 @@
+*   a0b9def (HEAD -> main) Promote: merge dev (priority_score agentic change) into main
+|\  
+| * 60bebef (dev) Agentic change: add derived priority_score to ops.rm_cases
+|/  
+* 0b65242 Baseline: ops schema, search columns, sync scripts, README

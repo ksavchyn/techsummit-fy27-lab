@@ -1,0 +1,7 @@
+PROMOTION EVIDENCE
+- git: dev merged into main (see git_history.txt) — commit 60bebef promoted via merge a0b9def
+- Lakebase: migration 0003 developed on branch 'dev' (endpoint ep-mute-haze), validated, then applied to 'production' branch
+- production now shows priority_score on ops.rm_cases:
+3 CUST-0009871 score=181500.00
+1 CUST-0001955 score=123000.00
+2 CUST-0004312 score=81000.00

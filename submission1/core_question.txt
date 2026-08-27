@@ -1,0 +1,8 @@
+Business question (Meridian Bank retention):
+"Which at-risk customers should relationship managers prioritize for outreach — the ones
+ with the highest revenue at risk — and what retention action, offer, and predicted net
+ value does the model recommend for each?"
+
+Answered by joining two synced UC gold tables served from Lakebase (both read-only, low-latency):
+  retention.gold_open_atrisk  (at-risk positions)  ⨝  retention.gold_nba_recommendations (next-best-action)
+on customer_id. See core_query.sql / core_query_result.json.

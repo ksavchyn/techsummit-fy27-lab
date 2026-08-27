@@ -1,0 +1,10 @@
+Lakebase instance (Autoscaling project): meridian-bank
+Display name: Meridian Bank C360
+Workspace: fe-sandbox-reyden-whisperers.cloud.databricks.com
+Branch/endpoint: production/primary  host=ep-lingering-voice-d86p80aa.database.us-east-2.cloud.databricks.com
+Logical database: databricks_postgres
+UC catalog (registered): meridian_bank_pg (MANAGED_ONLINE_CATALOG)
+
+Connectivity check (SELECT version()):
+ PostgreSQL 17.11 (32e7196) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+

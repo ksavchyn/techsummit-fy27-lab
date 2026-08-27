@@ -1,0 +1,15 @@
+{
+  "_comment": "Reverse Lakehouse Sync (Lakebase CDF) — Postgres 'ops' schema -> UC Delta (SCD2). Defined as code; applied via apply_reverse_sync.sh (CLI, not UI).",
+  "parent":  "projects/meridian-bank/branches/production/databases/databricks-postgres",
+  "cdf_config_id": "meridian_ops_cdf",
+  "catalog": "reyden_whisperers_catalog",
+  "schema":  "meridian_ops_history",
+  "postgres_schema": "ops",
+  "prerequisites": [
+    "ALTER TABLE ops.rm_cases        REPLICA IDENTITY FULL;",
+    "ALTER TABLE ops.rm_notes        REPLICA IDENTITY FULL;",
+    "ALTER TABLE ops.outreach_actions REPLICA IDENTITY FULL;"
+  ],
+  "produces": ["lb_rm_cases_history", "lb_rm_notes_history", "lb_outreach_actions_history"],
+  "system_metadata_columns": ["_pg_change_type", "_timestamp", "_pg_lsn", "_pg_xid"]
+}

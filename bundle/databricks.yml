@@ -1,0 +1,52 @@
+# Declarative Automation Bundle — Meridian Bank Lakebase sync (defined as code, not UI).
+# Deploy:  databricks bundle deploy -t prod -p reyden-whisperers
+bundle:
+  name: meridian-lakebase-sync
+
+variables:
+  project:  { default: meridian-bank }
+  branch:   { default: production }
+  source_catalog: { default: reyden_whisperers_catalog }
+  source_schema:  { default: meridian_bank }
+  pg_database:    { default: databricks_postgres }
+  storage_catalog: { default: reyden_whisperers_catalog }
+  storage_schema:  { default: meridian_sync_storage }
+
+resources:
+  synced_database_tables:
+    gold_customer_position:
+      name: meridian_bank_pg.retention.gold_customer_position
+      logical_database_name: ${var.pg_database}
+      spec:
+        source_table_full_name: ${var.source_catalog}.${var.source_schema}.gold_customer_position
+        primary_key_columns: [customer_id]
+        scheduling_policy: SNAPSHOT
+        new_pipeline_spec:
+          storage_catalog: ${var.storage_catalog}
+          storage_schema:  ${var.storage_schema}
+    gold_open_atrisk:
+      name: meridian_bank_pg.retention.gold_open_atrisk
+      logical_database_name: ${var.pg_database}
+      spec:
+        source_table_full_name: ${var.source_catalog}.${var.source_schema}.gold_open_atrisk
+        primary_key_columns: [customer_id]
+        scheduling_policy: SNAPSHOT
+        new_pipeline_spec:
+          storage_catalog: ${var.storage_catalog}
+          storage_schema:  ${var.storage_schema}
+    gold_nba_recommendations:
+      name: meridian_bank_pg.retention.gold_nba_recommendations
+      logical_database_name: ${var.pg_database}
+      spec:
+        source_table_full_name: ${var.source_catalog}.${var.source_schema}.gold_nba_recommendations
+        primary_key_columns: [customer_id]
+        scheduling_policy: SNAPSHOT
+        new_pipeline_spec:
+          storage_catalog: ${var.storage_catalog}
+          storage_schema:  ${var.storage_schema}
+
+targets:
+  prod:
+    default: true
+    workspace:
+      host: https://fe-sandbox-reyden-whisperers.cloud.databricks.com

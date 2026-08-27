@@ -1,0 +1,92 @@
+[
+  {
+    "customer_id": "CUST-0004138",
+    "customer_display_name": "Customer 0004138",
+    "tier": "affluent",
+    "home_metro": "Philadelphia",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 31902.91,
+    "balance_at_risk_usd": 1245716.44
+  },
+  {
+    "customer_id": "CUST-0007505",
+    "customer_display_name": "Customer 0007505",
+    "tier": "affluent",
+    "home_metro": "Dallas",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 31141.43,
+    "balance_at_risk_usd": 1224857.15
+  },
+  {
+    "customer_id": "CUST-0006136",
+    "customer_display_name": "Customer 0006136",
+    "tier": "affluent",
+    "home_metro": "Minneapolis",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 30077.31,
+    "balance_at_risk_usd": 1174292.51
+  },
+  {
+    "customer_id": "CUST-0001326",
+    "customer_display_name": "Customer 0001326",
+    "tier": "affluent",
+    "home_metro": "Chicago",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 30043.65,
+    "balance_at_risk_usd": 1180946.08
+  },
+  {
+    "customer_id": "CUST-0005063",
+    "customer_display_name": "Customer 0005063",
+    "tier": "affluent",
+    "home_metro": "Miami",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 29909.25,
+    "balance_at_risk_usd": 1183570.01
+  },
+  {
+    "customer_id": "CUST-0000697",
+    "customer_display_name": "Customer 0000697",
+    "tier": "affluent",
+    "home_metro": "Atlanta",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 29673.93,
+    "balance_at_risk_usd": 1174157.10
+  },
+  {
+    "customer_id": "CUST-0000623",
+    "customer_display_name": "Customer 0000623",
+    "tier": "private",
+    "home_metro": "Minneapolis",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 29636.16,
+    "balance_at_risk_usd": 1167846.28
+  },
+  {
+    "customer_id": "CUST-0005618",
+    "customer_display_name": "Customer 0005618",
+    "tier": "affluent",
+    "home_metro": "New York",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 29377.82,
+    "balance_at_risk_usd": 1149512.81
+  },
+  {
+    "customer_id": "CUST-0005470",
+    "customer_display_name": "Customer 0005470",
+    "tier": "affluent",
+    "home_metro": "Boston",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 29331.24,
+    "balance_at_risk_usd": 1149249.48
+  },
+  {
+    "customer_id": "CUST-0001992",
+    "customer_display_name": "Customer 0001992",
+    "tier": "affluent",
+    "home_metro": "Dallas",
+    "risk_band": "critical",
+    "revenue_at_risk_usd": 29330.40,
+    "balance_at_risk_usd": 1142815.85
+  }
+]
