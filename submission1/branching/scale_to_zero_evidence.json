@@ -1,0 +1,20 @@
+[
+  {
+    "branch": "production",
+    "min_cu": 0.5,
+    "max_cu": 2,
+    "suspend_timeout": "300s"
+  },
+  {
+    "branch": "dev",
+    "min_cu": 0.5,
+    "max_cu": 2,
+    "suspend_timeout": "300s"
+  },
+  {
+    "branch": "forecast",
+    "min_cu": 0.5,
+    "max_cu": 2,
+    "suspend_timeout": "300s"
+  }
+]

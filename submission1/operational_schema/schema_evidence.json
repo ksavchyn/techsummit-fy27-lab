@@ -1,0 +1,33 @@
+{
+  "foreign_keys": [
+    {
+      "table": "ops.rm_notes",
+      "column": "case_id",
+      "references": "ops.rm_cases.case_id"
+    },
+    {
+      "table": "ops.outreach_actions",
+      "column": "case_id",
+      "references": "ops.rm_cases.case_id"
+    }
+  ],
+  "primary_keys": [
+    {
+      "table": "ops.rm_cases",
+      "column": "case_id"
+    },
+    {
+      "table": "ops.rm_notes",
+      "column": "note_id"
+    },
+    {
+      "table": "ops.outreach_actions",
+      "column": "action_id"
+    }
+  ],
+  "row_counts": {
+    "ops.rm_cases": 3,
+    "ops.rm_notes": 4,
+    "ops.outreach_actions": 3
+  }
+}

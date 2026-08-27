@@ -1,0 +1,14 @@
+[
+  {
+    "name": "projects/meridian-bank/branches/production",
+    "state": "READY"
+  },
+  {
+    "name": "projects/meridian-bank/branches/forecast",
+    "state": "READY"
+  },
+  {
+    "name": "projects/meridian-bank/branches/dev",
+    "state": "READY"
+  }
+]

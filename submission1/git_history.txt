@@ -1,4 +1,5 @@
-*   a0b9def (HEAD -> main) Promote: merge dev (priority_score agentic change) into main
+* 61c6ac4 (HEAD -> main) Add sync-as-code (DAB + reverse-sync CDF spec) and submission1 evidence
+*   a0b9def Promote: merge dev (priority_score agentic change) into main
 |\  
 | * 60bebef (dev) Agentic change: add derived priority_score to ops.rm_cases
 |/  

@@ -1,0 +1,27 @@
+{
+  "branch": "forecast (throwaway, off production)",
+  "customers": 340,
+  "total_projected_revenue_loss_usd": 4093007.86,
+  "top5": [
+    {
+      "customer_id": "CUST-0004138",
+      "projected_revenue_loss_usd": 31902.91
+    },
+    {
+      "customer_id": "CUST-0007505",
+      "projected_revenue_loss_usd": 31141.43
+    },
+    {
+      "customer_id": "CUST-0006136",
+      "projected_revenue_loss_usd": 30077.31
+    },
+    {
+      "customer_id": "CUST-0001326",
+      "projected_revenue_loss_usd": 30043.65
+    },
+    {
+      "customer_id": "CUST-0005063",
+      "projected_revenue_loss_usd": 29909.25
+    }
+  ]
+}

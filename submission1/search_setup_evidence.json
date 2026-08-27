@@ -1,0 +1,28 @@
+{
+  "extensions": [
+    {
+      "name": "vector",
+      "version": "0.8.0"
+    },
+    {
+      "name": "lakebase_vector",
+      "version": "1.1.0"
+    },
+    {
+      "name": "lakebase_text",
+      "version": "0.1.1"
+    }
+  ],
+  "search_indexes": [
+    {
+      "index": "rm_notes_tsv_bm25",
+      "def": "CREATE INDEX rm_notes_tsv_bm25 ON ops.rm_notes USING lakebase_bm25 (note_tsv)"
+    },
+    {
+      "index": "rm_notes_emb_ann",
+      "def": "CREATE INDEX rm_notes_emb_ann ON ops.rm_notes USING lakebase_ann (note_embedding vector_cosine_ops)"
+    }
+  ],
+  "notes_total": 4,
+  "notes_with_embedding": 4
+}

@@ -1,0 +1,13 @@
+{
+  "writable_ops_tables": {
+    "ops.rm_cases": 3,
+    "ops.rm_notes": 4,
+    "ops.outreach_actions": 3
+  },
+  "readonly_synced_tables": {
+    "retention.gold_customer_position": 40000,
+    "retention.gold_open_atrisk": 340,
+    "retention.gold_nba_recommendations": 340
+  },
+  "note": "ops.* are native writable Postgres tables (app state/actions); retention.* are read-only synced from UC gold. A write to a synced table fails; writes to ops.* succeed (see seed data + priority_score update)."
+}

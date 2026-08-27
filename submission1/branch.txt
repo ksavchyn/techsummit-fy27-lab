@@ -8,3 +8,8 @@ Change made on the branch (migration 0003, see agent_change/):
   ALTER TABLE ops.rm_cases ADD COLUMN priority_score NUMERIC(12,2);
   UPDATE ... priority_score = balance_at_risk_usd * priority-weight (high 1.5 / med 1.0 / low 0.5)
   -> validated on 'dev', then promoted to 'production' + merged dev->main in git.
+
+Forecasting branch (throwaway, off production): forecast
+  path: projects/meridian-bank/branches/forecast (endpoint: primary, read-write, scale-to-zero)
+  use: what-if attrition scenario (competitor rate hike) projecting revenue loss WITHOUT touching production
+  see forecast/forecast_scenario.sql + forecast/forecast_result.json
