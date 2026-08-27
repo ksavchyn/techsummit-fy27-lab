@@ -35,8 +35,7 @@ var THIS_FILE = fileURLToPath(import.meta.url);
 var THIS_BASENAME = path.basename(THIS_FILE);
 var installed = false;
 function installLogger() {
-  if (installed)
-    return;
+  if (installed) return;
   installed = true;
   const useColor = process.stdout.isTTY === true;
   const origStdoutWrite = process.stdout.write.bind(process.stdout);
@@ -46,18 +45,14 @@ function installLogger() {
   const colorCaller = (caller) => useColor ? `${DIM}${caller}${RESET}` : caller;
   function callerFrame() {
     const stack = new Error().stack;
-    if (!stack)
-      return "";
+    if (!stack) return "";
     const lines = stack.split("\n");
     for (const line of lines) {
       const m = line.match(/\(?(?:file:\/\/)?([^\s()]+\.(?:ts|js|mjs|cjs)):(\d+):\d+\)?/);
-      if (!m)
-        continue;
+      if (!m) continue;
       const file = m[1];
-      if (file.endsWith(THIS_BASENAME))
-        continue;
-      if (file.startsWith("node:"))
-        continue;
+      if (file.endsWith(THIS_BASENAME)) continue;
+      if (file.startsWith("node:")) continue;
       const parts = file.split("/");
       const short = parts.slice(-2).join("/");
       return `${short}:${m[2]}`;
@@ -70,24 +65,20 @@ function installLogger() {
     return `${colorTs(ts)} ${colorLevel(level)}${colorCaller(callerPad)}  `;
   }
   function formatArg(a) {
-    if (typeof a === "string")
-      return a;
-    if (a instanceof Error)
-      return a.stack ?? `${a.name}: ${a.message}`;
+    if (typeof a === "string") return a;
+    if (a instanceof Error) return a.stack ?? `${a.name}: ${a.message}`;
     return util.inspect(a, { colors: useColor, depth: 4, breakLength: 120 });
   }
   function render(level, args) {
     const body = args.map(formatArg).join(" ");
     const lines = body.split("\n");
-    while (lines.length > 1 && lines[lines.length - 1] === "")
-      lines.pop();
+    while (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
     const p = prefix(level, callerFrame());
     const out = lines.length === 1 ? p + lines[0] : p + lines[0] + "\n" + lines.slice(1).map((l) => CONT_INDENT + l).join("\n");
     return SELF_TAG + out + "\n";
   }
   const makeConsoleMethod = (level, write) => (...args) => {
-    if (!shouldEmit(level))
-      return;
+    if (!shouldEmit(level)) return;
     const out = render(level, args);
     write(out.slice(SELF_TAG.length));
   };
@@ -106,8 +97,7 @@ function installLogger() {
       }
       const endsWithNL = s.endsWith("\n");
       const lines = (endsWithNL ? s.slice(0, -1) : s).split("\n");
-      while (lines.length > 1 && lines[lines.length - 1] === "")
-        lines.pop();
+      while (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
       const p = prefix(level, callerFrame());
       const out = lines.length === 1 ? p + lines[0] : p + lines[0] + "\n" + lines.slice(1).map((l) => CONT_INDENT + l).join("\n");
       return orig(out + (endsWithNL ? "\n" : ""), ...rest);
@@ -428,8 +418,7 @@ async function ensureMlflowExperiment(host, experimentPath) {
   if (getResp.ok) {
     const body = await getResp.json();
     const id = body.experiment?.experiment_id;
-    if (id)
-      return id;
+    if (id) return id;
   } else if (getResp.status !== 404 && getResp.status !== 400) {
     const errText = await getResp.text();
     throw new Error(`mlflow get-by-name failed: ${getResp.status} ${errText}`);
@@ -448,8 +437,7 @@ async function ensureMlflowExperiment(host, experimentPath) {
       if (retry.ok) {
         const body = await retry.json();
         const id = body.experiment?.experiment_id;
-        if (id)
-          return id;
+        if (id) return id;
       }
     }
     if (/Parent directory does not exist/i.test(errText)) {
@@ -520,11 +508,9 @@ var PLACEHOLDER_EMAIL = "local_user@databricks.com";
 function getCurrentUserEmail(req) {
   const h = req.headers;
   const forwardedEmail = h["x-forwarded-email"] ?? "";
-  if (forwardedEmail)
-    return forwardedEmail;
+  if (forwardedEmail) return forwardedEmail;
   const forwardedUser = h["x-forwarded-user"] ?? "";
-  if (forwardedUser.includes("@"))
-    return forwardedUser;
+  if (forwardedUser.includes("@")) return forwardedUser;
   return process.env.DEV_USER_EMAIL ?? PLACEHOLDER_EMAIL;
 }
 function getCurrentUserInfo(req) {
@@ -541,8 +527,7 @@ function getCurrentUserInfo(req) {
 
 // server/routes/config.ts
 function composeUrl(host, path2, id) {
-  if (!host || !id)
-    return "";
+  if (!host || !id) return "";
   return `${host}${path2}${id}`;
 }
 function buildResources(host, cfg) {
@@ -640,6 +625,7 @@ function registerConfigRoutes(app, deps) {
     const now = Date.now();
     if (warehouseCache && warehouseCache.id === id && warehouseCache.expiresAt > now) {
       const { expiresAt: _e2, ...payload2 } = warehouseCache;
+      void _e2;
       res.json(payload2);
       return;
     }
@@ -652,6 +638,7 @@ function registerConfigRoutes(app, deps) {
       expiresAt: now + WAREHOUSE_CACHE_TTL_MS
     };
     const { expiresAt: _e, ...payload } = warehouseCache;
+    void _e;
     res.json(payload);
   });
   app.get("/api/resources", (_req, res) => {
@@ -684,8 +671,7 @@ async function getOrCreateDockConversation(db2, userEmail) {
       eq(conversations.kind, "demo_dock")
     )
   ).limit(1);
-  if (existing[0])
-    return existing[0];
+  if (existing[0]) return existing[0];
   const rows = await db2.insert(conversations).values({
     userEmail,
     title: "Assistant",
@@ -696,8 +682,7 @@ async function getOrCreateDockConversation(db2, userEmail) {
 async function getConversationWithMessages(db2, userEmail, id) {
   const convoRows = await db2.select().from(conversations).where(and(eq(conversations.id, id), eq(conversations.userEmail, userEmail)));
   const convo = convoRows[0];
-  if (!convo)
-    return null;
+  if (!convo) return null;
   const msgs = await db2.select().from(messages).where(eq(messages.conversationId, id)).orderBy(asc(messages.position), asc(messages.createdAt));
   return { ...convo, messages: msgs };
 }
@@ -775,8 +760,7 @@ async function getOpenAtrisk(db2, customerId) {
 }
 async function getNbaRecommendation(db2, customerId) {
   const [row] = await db2.select().from(goldNbaRecommendations).where(eq2(goldNbaRecommendations.customerId, customerId)).limit(1);
-  if (!row)
-    return null;
+  if (!row) return null;
   let actionRanking = [];
   try {
     actionRanking = row.actionRanking ? JSON.parse(row.actionRanking) : [];
@@ -964,18 +948,15 @@ async function callMasEndpoint(ctx, endpointName, question) {
         throw e;
       }
       const { value, done } = chunk;
-      if (done)
-        break;
+      if (done) break;
       buf += dec.decode(value, { stream: true });
       const parts = buf.split("\n\n");
       buf = parts.pop() ?? "";
       for (const p of parts) {
         const line = p.split("\n").find((l) => l.startsWith("data: "));
-        if (!line)
-          continue;
+        if (!line) continue;
         const data = line.slice(6);
-        if (!data || data === "[DONE]")
-          continue;
+        if (!data || data === "[DONE]") continue;
         let ev;
         try {
           ev = JSON.parse(data);
@@ -990,15 +971,12 @@ async function callMasEndpoint(ctx, endpointName, question) {
           deltaBuf.push(ev.delta);
           continue;
         }
-        if (ev.type !== "response.output_item.done")
-          continue;
+        if (ev.type !== "response.output_item.done") continue;
         const item = ev.item;
-        if (!item)
-          continue;
+        if (!item) continue;
         if (item.type === "message" && Array.isArray(item.content)) {
           const text2 = item.content.find((c) => c?.type === "output_text")?.text;
-          if (!text2)
-            continue;
+          if (!text2) continue;
           const tagMatch = text2.trim().match(/^<name>([^<]+)<\/name>$/);
           if (tagMatch) {
             currentSubAgent = tagMatch[1];
@@ -1515,8 +1493,7 @@ to the save.
 
 // server/lib/endpoint.ts
 function fixMojibake(s) {
-  if (!s)
-    return s;
+  if (!s) return s;
   try {
     return Buffer.from(s, "latin1").toString("utf8");
   } catch {
@@ -1532,8 +1509,7 @@ function fixMojibake(s) {
 
 // server/chat-stream/sse.ts
 function sseWrite(res, event) {
-  if (res.writableEnded || res.destroyed)
-    return;
+  if (res.writableEnded || res.destroyed) return;
   res.write(`data: ${JSON.stringify(event)}
 
 `);
@@ -1677,8 +1653,7 @@ async function streamAgentTurn(args) {
           if (ev.type === "run_item_stream_event") {
             const item = ev.item;
             const raw = item.rawItem;
-            if (!raw)
-              continue;
+            if (!raw) continue;
             if (ev.name === "tool_called" && raw.type === "function_call") {
               thinking.push({
                 kind: "tool_call",
@@ -2123,8 +2098,7 @@ var NUMERIC_RE = /^-?\d+(\.\d+)?$/;
 function coerce(value) {
   if (typeof value === "string" && NUMERIC_RE.test(value)) {
     const n = Number(value);
-    if (!Number.isNaN(n))
-      return n;
+    if (!Number.isNaN(n)) return n;
   }
   return value;
 }
@@ -2199,8 +2173,7 @@ function registerDevLogRoutes(app, logErrorCompact2) {
 // server/server.ts
 if (process.env.DATABRICKS_HOST) {
   let h = process.env.DATABRICKS_HOST.trim().replace(/\/+$/, "");
-  if (!/^https?:\/\//i.test(h))
-    h = "https://" + h;
+  if (!/^https?:\/\//i.test(h)) h = "https://" + h;
   process.env.DATABRICKS_HOST = h;
 }
 installLogger();
@@ -2313,14 +2286,10 @@ var agentExperimentId = null;
 function logErrorCompact(prefix, err) {
   const e = err;
   const parts = [truncate(e.message ?? String(err), 300)];
-  if (e.cause?.code)
-    parts.push(`pg=${e.cause.code}`);
-  if (e.cause?.constraint)
-    parts.push(`constraint=${e.cause.constraint}`);
-  if (e.cause?.detail)
-    parts.push(`detail=${truncate(e.cause.detail, 200)}`);
-  if (e.query)
-    parts.push(`query=${truncate(e.query, 200)}`);
+  if (e.cause?.code) parts.push(`pg=${e.cause.code}`);
+  if (e.cause?.constraint) parts.push(`constraint=${e.cause.constraint}`);
+  if (e.cause?.detail) parts.push(`detail=${truncate(e.cause.detail, 200)}`);
+  if (e.query) parts.push(`query=${truncate(e.query, 200)}`);
   const header = `${prefix} ${parts.join(" | ")}`;
   const frames = e.stack ? e.stack.split("\n").filter((l) => l.trimStart().startsWith("at ")).slice(0, 12).map((l) => truncate(l.trimStart(), 300)).join("\n") : "";
   console.error(frames ? `${header}
@@ -2368,12 +2337,9 @@ await createApp({
     db = createDb(appkit.lakebase.pool);
     appkit.server.extend((app) => {
       app.use("/api", async (req, res, next) => {
-        if (migrationsDone)
-          return next();
-        if (STARTUP_SAFE_PATHS.has(req.path))
-          return next();
-        if (STARTUP_SAFE_PREFIXES.some((p) => req.path.startsWith(p)))
-          return next();
+        if (migrationsDone) return next();
+        if (STARTUP_SAFE_PATHS.has(req.path)) return next();
+        if (STARTUP_SAFE_PREFIXES.some((p) => req.path.startsWith(p))) return next();
         if (migrationsFailure) {
           res.status(503).json({
             error: `Database initialization failed: ${migrationsFailure.message}`

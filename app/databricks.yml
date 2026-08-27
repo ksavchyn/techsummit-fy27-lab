@@ -1,0 +1,47 @@
+# Databricks Asset Bundle for the Meridian Relationship Desk app.
+#
+# Deploy:
+#   ./scripts/build-app.sh          # generates drizzle/ + rewrites the lockfile
+#                                    #   to the public registry (the Apps
+#                                    #   container can't reach the npm proxy)
+#   databricks bundle validate -t dev --profile techsummit
+#   databricks bundle deploy   -t dev --profile techsummit
+#   databricks bundle run meridian_relationship_desk -t dev --profile techsummit
+#
+# The Apps container itself runs `npm install && npm run build && npm start`
+# (see app.yaml `command`), so node_modules and the built dist/ are produced
+# on the container — they must NOT be uploaded. drizzle/ is NOT regenerated on
+# the container (`npm run build` has no db:generate step), so build-app.sh must
+# run first and the generated drizzle/ ships as source.
+
+bundle:
+  name: meridian-relationship-desk
+
+# There is no .gitignore in this project, so DAB would otherwise sync
+# everything — including the ~700-package node_modules/ and the Python .venv/.
+# Exclude what the container rebuilds or doesn't need. drizzle/, config/,
+# server/, client/ source, package.json and the (rewritten) package-lock.json
+# all stay in the sync so the container can install + build.
+sync:
+  exclude:
+    - node_modules
+    - .venv
+    - .databricks
+    - .vscode
+    - tests
+    - "**/*.bak"
+    - ".env"
+    - ".env.*"
+
+resources:
+  apps:
+    meridian_relationship_desk:
+      name: meridian-relationship-desk
+      description: "Meridian Bank relationship desk — AppKit app (Lakebase + analytics + Genie/MAS)."
+      source_code_path: .
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://fe-sandbox-reyden-whisperers.cloud.databricks.com

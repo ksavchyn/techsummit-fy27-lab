@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "npm run build:server && npm run build:client",
-    "build:server": "esbuild server/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --packages=external",
+    "build:server": "./node_modules/.bin/esbuild server/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js --packages=external",
     "build:client": "./node_modules/.bin/vite build --config client/vite.config.ts",
     "start": "node --env-file-if-exists=.env dist/server.js",
     "db:generate": "drizzle-kit generate"
@@ -15,6 +15,7 @@
     "@databricks/appkit-ui": "latest",
     "express": "^5.0.0",
     "drizzle-orm": "^0.38.0",
+    "esbuild": "^0.25.0",
     "@openai/agents": "^0.1.0",
     "openai": "^4.70.0",
     "mlflow-tracing": "*",
