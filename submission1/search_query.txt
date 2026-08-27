@@ -1,0 +1,35 @@
+LAKEBASE SEARCH — hybrid (vector ANN + BM25 full-text) over ops.rm_notes.note_text
+Retrieval runs entirely inside the customer's Lakebase Postgres (meridian-bank); no data leaves the account.
+
+Natural-language query:
+  "customers comparing competitor savings rates who might move their deposits"
+
+Setup (see migrations/0002_search_columns.sql):
+  CREATE EXTENSION vector;            -- pgvector (must precede lakebase_vector)
+  CREATE EXTENSION lakebase_vector;   -- ANN access method: lakebase_ann
+  CREATE EXTENSION lakebase_text;     -- BM25 access method: lakebase_bm25
+  -- ops.rm_notes.note_tsv        tsvector GENERATED from note_text
+  -- ops.rm_notes.note_embedding  vector(1024), filled via ai_query('databricks-gte-large-en', note_text)
+  CREATE INDEX rm_notes_tsv_bm25 ON ops.rm_notes USING lakebase_bm25 (note_tsv);
+  CREATE INDEX rm_notes_emb_ann  ON ops.rm_notes USING lakebase_ann  (note_embedding vector_cosine_ops);
+
+Query embedding is generated with the same model (ai_query 'databricks-gte-large-en') and inlined as :qv.
+Hybrid ranking = Reciprocal Rank Fusion, 1/(60+rank) summed over the two rankings:
+
+  WITH vec AS (
+    SELECT note_id, ROW_NUMBER() OVER (ORDER BY note_embedding <=> :qv) AS rnk FROM ops.rm_notes
+  ),
+  kw AS (
+    SELECT note_id, ROW_NUMBER() OVER (
+             ORDER BY note_tsv <@> to_bm25query(
+               to_tsvector('english', 'customers comparing competitor savings rates who might move their deposits'),
+               'ops.rm_notes_tsv_bm25'::regclass)
+           ) AS rnk FROM ops.rm_notes
+  )
+  SELECT n.note_id, n.customer_id, n.author, n.note_text,
+         ROUND((1.0/(60+vec.rnk) + 1.0/(60+kw.rnk))::numeric,6) AS rrf_score
+  FROM ops.rm_notes n JOIN vec USING(note_id) JOIN kw USING(note_id)
+  ORDER BY rrf_score DESC LIMIT 5;
+
+Top result: note_id 1 (CUST-0001955) — "Rate-sensitive and actively comparing competitor savings rates online.
+Considering moving deposits to a fintech offering higher APY." (see search_result.json)
