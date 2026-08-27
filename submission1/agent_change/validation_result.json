@@ -1,0 +1,3 @@
+[{"case_id":3,"customer_id":"CUST-0009871","priority":"high","balance_at_risk_usd":121000.00,"priority_score":181500.00}, 
+ {"case_id":1,"customer_id":"CUST-0001955","priority":"high","balance_at_risk_usd":82000.00,"priority_score":123000.00}, 
+ {"case_id":2,"customer_id":"CUST-0004312","priority":"high","balance_at_risk_usd":54000.00,"priority_score":81000.00}]
