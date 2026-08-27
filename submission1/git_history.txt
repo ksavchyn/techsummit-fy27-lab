@@ -1,6 +1,7 @@
-* 61c6ac4 (HEAD -> main) Add sync-as-code (DAB + reverse-sync CDF spec) and submission1 evidence
+* 53bfeda (HEAD -> main) Add execution evidence to submission1: operational schema, search setup, scale-to-zero, branching, forecast scenario
+* 61c6ac4 (origin/main) Add sync-as-code (DAB + reverse-sync CDF spec) and submission1 evidence
 *   a0b9def Promote: merge dev (priority_score agentic change) into main
 |\  
-| * 60bebef (dev) Agentic change: add derived priority_score to ops.rm_cases
+| * 60bebef (origin/dev, dev) Agentic change: add derived priority_score to ops.rm_cases
 |/  
 * 0b65242 Baseline: ops schema, search columns, sync scripts, README
