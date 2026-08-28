@@ -86,10 +86,12 @@ function chatContent(result: unknown): string {
 const GATEWAY_CHAT_MODEL =
   process.env.GATEWAY_CHAT_MODEL ?? 'reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-chat';
 function workspaceHost(): string {
-  return (process.env.DATABRICKS_HOST ?? 'https://fe-sandbox-reyden-whisperers.cloud.databricks.com').replace(
+  const raw = (process.env.DATABRICKS_HOST ?? 'https://fe-sandbox-reyden-whisperers.cloud.databricks.com').replace(
     /\/+$/,
     '',
   );
+  // Databricks Apps set DATABRICKS_HOST without a scheme; fetch() requires an absolute URL.
+  return /^https?:\/\//.test(raw) ? raw : `https://${raw}`;
 }
 interface ChatMsg {
   role: 'system' | 'user' | 'assistant';
@@ -376,7 +378,7 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
           customer_id: z.string().min(1),
           proposed_action: z.string().min(1),
           offer_product_id: z.string().optional(),
-          offer_rate_apy: z.number().nullable().optional(),
+          offer_rate_apy: z.coerce.number().nullable().optional(),
           rationale: z.string().optional(),
         })
         .safeParse(req.body);
@@ -411,12 +413,12 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
     app.post('/api/retention/approve', async (req, res) => {
       const parsed = z
         .object({
-          action_id: z.number().int(),
+          action_id: z.coerce.number().int(),
           approver: z.string().min(1),
           // optional corrections applied at approval time
           proposed_action: z.string().optional(),
           offer_product_id: z.string().optional(),
-          offer_rate_apy: z.number().nullable().optional(),
+          offer_rate_apy: z.coerce.number().nullable().optional(),
           rationale: z.string().optional(),
           corrected: z.boolean().optional(),
         })
@@ -506,7 +508,7 @@ export function setupRetentionRoutes(appkit: RetentionAppKit) {
     // ── ACT: reject a proposed action ─────────────────────────────────────────
     app.post('/api/retention/reject', async (req, res) => {
       const parsed = z
-        .object({ action_id: z.number().int(), approver: z.string().min(1) })
+        .object({ action_id: z.coerce.number().int(), approver: z.string().min(1) })
         .safeParse(req.body);
       if (!parsed.success) {
         res.status(400).json({ error: 'action_id and approver required' });

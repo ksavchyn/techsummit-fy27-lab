@@ -30,6 +30,7 @@ resources:
       user_api_scopes:
         - dashboards.genie
         - serving.serving-endpoints
+        - ai-gateway
 
       # The resources which this app has access to.
       resources:

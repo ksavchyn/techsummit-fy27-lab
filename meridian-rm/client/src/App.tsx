@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent, GenieChat } from '@databricks/appkit-ui/react';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  useGenieChat,
+  GenieChatMessageList,
+  GenieChatInput,
+} from '@databricks/appkit-ui/react';
 import { QueuePage } from './pages/QueuePage';
 import { DetailSheet } from './pages/DetailSheet';
 
@@ -29,6 +37,65 @@ function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+const GENIE_EXAMPLES = [
+  'Which customers have the highest revenue at risk?',
+  'Show attrition risk broken down by tier',
+  'What is the total balance at risk for affluent customers?',
+  'Which customers have a deposit maturing in the next 30 days?',
+  'What retention offer is recommended for the highest-risk customers?',
+  'How many customers are flagged ACT NOW by metro?',
+];
+
+function GenieTab() {
+  const { messages, status, sendMessage, hasPreviousPage, fetchPreviousPage } = useGenieChat({
+    alias: 'default',
+  });
+  const busy = status === 'streaming' || status === 'loading-history';
+  return (
+    <div className="space-y-3">
+      <div>
+        <h2 className="text-2xl font-bold">Ask Genie</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Free-form natural-language Q&amp;A and what-if over the retention data
+          (&ldquo;Customer Attrition Risk and Retention&rdquo; space).
+        </p>
+      </div>
+      <div className="rounded-lg border bg-muted/40 p-3">
+        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+          Example questions
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {GENIE_EXAMPLES.map((q) => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => sendMessage(q)}
+              disabled={busy}
+              className="rounded-full border bg-background px-3 py-1 text-xs text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col h-[min(640px,72vh)] border rounded-lg overflow-hidden">
+        <GenieChatMessageList
+          messages={messages}
+          status={status}
+          hasPreviousPage={hasPreviousPage}
+          onFetchPreviousPage={fetchPreviousPage}
+          className="flex-1 min-h-0"
+        />
+        <GenieChatInput
+          onSend={sendMessage}
+          disabled={busy}
+          placeholder="Ask about attrition risk and retention…"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -79,18 +146,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="genie">
-            <div className="space-y-3">
-              <div>
-                <h2 className="text-2xl font-bold">Ask Genie</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Free-form natural-language Q&amp;A and what-if over the retention data
-                  (&ldquo;Customer Attrition Risk and Retention&rdquo; space).
-                </p>
-              </div>
-              <div className="h-[min(640px,72vh)] border rounded-lg overflow-hidden">
-                <GenieChat alias="default" />
-              </div>
-            </div>
+            <GenieTab />
           </TabsContent>
         </Tabs>
       </main>
