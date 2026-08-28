@@ -1,4 +1,5 @@
-* b827171 (HEAD -> dev) Build 2 app: fix live assist + act, add clickable Genie pills
+* c6ee66d (HEAD -> dev) Build 2: executed Lakebase Search notebook + refreshed evidence
+* b827171 Build 2 app: fix live assist + act, add clickable Genie pills
 * c124709 (origin/dev) Build 2 app: route assist through governed UAIG endpoint (meridian-rm-chat via /ai-gateway/mlflow/v1, forwarded user token); customer-360 retention-radar skin (header, radar background, KPI icons, hero band)
 * f6cd84d Build 2 app: wire assist chat to governed gateway endpoint meridian-rm-assist-chat (Build 3 swap) — redeploy pending app-SP CAN_QUERY grant
 * 0253437 Build 2: refresh submission2.zip
