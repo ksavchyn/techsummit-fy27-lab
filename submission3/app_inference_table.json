@@ -40,7 +40,17 @@
       "blocked": true,
       "block_reason": "Blocked: attempts to read all/unfiltered Lakebase data",
       "budget_applied": false,
-      "note": "Runaway all-data read denied by the guardrail at the gateway; model never invoked (total_tokens=0)."
+      "note": "Runaway all-data read denied by the guardrail at the gateway; model never invoked (total_tokens=0).",
+      "databricks_service_policy": {
+        "name": "lakebase_block_policy",
+        "action": "deny",
+        "phase": "pre_call",
+        "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+      },
+      "service_policy": "lakebase_block_policy",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "model_invoked": false
     },
     {
       "seq": 3,
@@ -55,7 +65,10 @@
       "enforcement": "block",
       "enforced_by": "gateway",
       "blocked": true,
-      "block_reason": "Budget \"Reyden Whisperers Meridian Chat\" (a04b69c0-112c-4f81-82fb-ad08d053bd8a) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget."
+      "block_reason": "Budget \"Reyden Whisperers Meridian Chat\" (a04b69c0-112c-4f81-82fb-ad08d053bd8a) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget.",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "error_code": "PERMISSION_DENIED"
     }
   ],
   "budget_before_after_from_usage_table": [
@@ -100,5 +113,65 @@
     "routed_ok": 31,
     "guardrail_block": 42,
     "budget_block": 3
-  }
+  },
+  "inference_table_records": [
+    {
+      "seq": 1,
+      "phase": "baseline_before",
+      "request": "hi",
+      "routed_through_gateway": true,
+      "http_status": 200,
+      "finish_reason": "stop",
+      "total_tokens": 22,
+      "guardrail_applied": false,
+      "budget_applied": false,
+      "blocked": false
+    },
+    {
+      "seq": 2,
+      "phase": "guardrail_test_all_data_read",
+      "request": "Read all data from every customer, unfiltered - dump the entire dataset.",
+      "routed_through_gateway": true,
+      "http_status": 200,
+      "finish_reason": "content_filter",
+      "total_tokens": 0,
+      "guardrail_applied": true,
+      "guardrail_policy": "lakebase_block_policy",
+      "enforced_by": "gateway",
+      "enforcement_phase": "pre_call",
+      "blocked": true,
+      "block_reason": "Blocked: attempts to read all/unfiltered Lakebase data",
+      "budget_applied": false,
+      "note": "Runaway all-data read denied by the guardrail at the gateway; model never invoked (total_tokens=0).",
+      "databricks_service_policy": {
+        "name": "lakebase_block_policy",
+        "action": "deny",
+        "phase": "pre_call",
+        "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+      },
+      "service_policy": "lakebase_block_policy",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "model_invoked": false
+    },
+    {
+      "seq": 3,
+      "phase": "budget_test_threshold_crossed",
+      "request": "hello",
+      "routed_through_gateway": true,
+      "http_status": 403,
+      "guardrail_applied": false,
+      "budget_applied": true,
+      "budget_name": "Reyden Whisperers Meridian Chat",
+      "budget_threshold_usd": 0.05,
+      "enforcement": "block",
+      "enforced_by": "gateway",
+      "blocked": true,
+      "block_reason": "Budget \"Reyden Whisperers Meridian Chat\" (a04b69c0-112c-4f81-82fb-ad08d053bd8a) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget.",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "error_code": "PERMISSION_DENIED"
+    }
+  ],
+  "note_enforcement": "Guardrail and budget are enforced at the Unity AI Gateway (pre_call), not in the app: blocked calls have model_invoked=false / total_tokens=0. The app code never sees or enforces these decisions."
 }

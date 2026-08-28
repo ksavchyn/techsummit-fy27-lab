@@ -1,0 +1,68 @@
+{
+  "evidence": "Coding-agent (Claude Code via ucode) traffic collected by Unity AI Gateway \u2014 a distinct coding-agent inference/telemetry table, separate from the app's model-service calls.",
+  "source_table": "system.ai_gateway.usage",
+  "coding_agent_filter": "user_agent contains 'claude' (Claude Code), excluding MCP_SERVICE and AI_QUERY \u2014 the same definition the Workspace AI Gateway Usage dashboard's Coding Agents tab uses.",
+  "distinct_from_app": "The app's calls (app_inference_table.json) are server-side on endpoint meridian-rm-gw-acs with a non-coding-agent user_agent. These rows are the team's coding agent (Claude Code) routed through the gateway via ucode.",
+  "coding_agent": "Claude Code",
+  "requesters": [
+    "dennis.schultz@databricks.com"
+  ],
+  "request_count": 6,
+  "total_tokens": 1658,
+  "records": [
+    {
+      "event_time": "2026-08-28 04:09:51",
+      "requester": "dennis.schultz@databricks.com",
+      "destination_model": "gpt-5-2",
+      "endpoint_name": "system.ai.gpt-5-2",
+      "status_code": "200",
+      "total_tokens": "406",
+      "user_agent": "cli/1.10.0 databricks-sdk-go/0.165.0 go/1.26.5 os/"
+    },
+    {
+      "event_time": "2026-08-28 04:09:51",
+      "requester": "dennis.schultz@databricks.com",
+      "destination_model": "gpt-5-2",
+      "endpoint_name": "system.ai.gpt-5-2",
+      "status_code": "200",
+      "total_tokens": "301",
+      "user_agent": "cli/1.10.0 databricks-sdk-go/0.165.0 go/1.26.5 os/"
+    },
+    {
+      "event_time": "2026-08-28 04:09:49",
+      "requester": "dennis.schultz@databricks.com",
+      "destination_model": "claude-opus-4-8",
+      "endpoint_name": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+      "status_code": "200",
+      "total_tokens": "55",
+      "user_agent": "cli/1.10.0 databricks-sdk-go/0.165.0 go/1.26.5 os/"
+    },
+    {
+      "event_time": "2026-08-28 04:09:49",
+      "requester": "dennis.schultz@databricks.com",
+      "destination_model": "gpt-5-2",
+      "endpoint_name": "system.ai.gpt-5-2",
+      "status_code": "200",
+      "total_tokens": "446",
+      "user_agent": "cli/1.10.0 databricks-sdk-go/0.165.0 go/1.26.5 os/"
+    },
+    {
+      "event_time": "2026-08-28 04:07:29",
+      "requester": "dennis.schultz@databricks.com",
+      "destination_model": "gpt-5-2",
+      "endpoint_name": "system.ai.gpt-5-2",
+      "status_code": "200",
+      "total_tokens": "450",
+      "user_agent": "cli/1.10.0 databricks-sdk-go/0.165.0 go/1.26.5 os/"
+    },
+    {
+      "event_time": "2026-08-28 04:07:28",
+      "requester": "dennis.schultz@databricks.com",
+      "destination_model": null,
+      "endpoint_name": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+      "status_code": "200",
+      "total_tokens": null,
+      "user_agent": "cli/1.10.0 databricks-sdk-go/0.165.0 go/1.26.5 os/"
+    }
+  ]
+}
