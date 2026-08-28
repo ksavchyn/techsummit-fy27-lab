@@ -58,3 +58,18 @@ I have what's needed. Here's what I found in Slack about the guardrail solution 
    Earlier in that thread he'd also noted reproducing a bug where the policy blocked even a plain "Hello" in Playground, and stayed blocked even after deleting the policy/model.
 
 **Chann
+
+
+## 5) Governed Slack MCP — configuration + execution proof
+
+MCP server registered against the gateway and added to Claude Code (`ucode mcp add --location system.ai --services slack`):
+  name:      system-ai-slack
+  transport: ucode mcp-proxy
+  gateway route: https://fe-sandbox-reyden-whisperers.cloud.databricks.com/ai-gateway/mcp-services/system.ai.slack
+  governed MCP service: system.ai.slack  (Unity AI Gateway)
+
+Execution proof (system.ai_gateway.usage, service_type=MCP_SERVICE, service_name=system.ai.slack):
+  27 Slack MCP calls captured THROUGH THE GATEWAY by the coding agent. Full rows in mcp_usage.json.
+  The agent's tool_use calls (mcp__system-ai-slack__slack_search_public_and_private) and their
+  results are shown in section 3 above — this is the governed Slack MCP being used, not a direct
+  Slack connection.

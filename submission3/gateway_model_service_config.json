@@ -1,0 +1,42 @@
+{
+  "name": "model-services/reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+  "config": {
+    "inference_table": {
+      "disabled": false,
+      "is_deleted": false,
+      "parent": "schemas/reyden_whisperers_catalog.meridian_ai_gateway",
+      "table": "tables/reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs_payload",
+      "table_name_prefix": "meridian-rm-gw-acs"
+    },
+    "rate_limits": [
+      {
+        "key": "RATE_LIMIT_KEY_SERVICE",
+        "renewal_period": "RATE_LIMIT_RENEWAL_PERIOD_MINUTE",
+        "requests": 60
+      },
+      {
+        "key": "RATE_LIMIT_KEY_SERVICE",
+        "renewal_period": "RATE_LIMIT_RENEWAL_PERIOD_MINUTE",
+        "tokens": 1024
+      },
+      {
+        "key": "RATE_LIMIT_KEY_USER_DEFAULT",
+        "renewal_period": "RATE_LIMIT_RENEWAL_PERIOD_MINUTE",
+        "requests": 20
+      }
+    ],
+    "routing": {
+      "destinations": [
+        {
+          "destination_type": "DESTINATION_TYPE_PAY_PER_TOKEN_FOUNDATION_MODEL",
+          "is_deleted": false,
+          "name": "system.ai.databricks-claude-opus-4-8",
+          "pay_per_token_config": {
+            "model": "models/system.ai.databricks-claude-opus-4-8"
+          },
+          "traffic_percentage": 100
+        }
+      ]
+    }
+  }
+}

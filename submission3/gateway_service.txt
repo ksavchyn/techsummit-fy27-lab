@@ -1,39 +1,50 @@
-UNITY AI GATEWAY — model service + inference table (programmatic creation)
-Build 3 · Step 3. Workspace: fe-sandbox-reyden-whisperers.cloud.databricks.com
+Build 3 · Unity AI Gateway — model service + inference table creation (as code)
+Workspace: fe-sandbox-reyden-whisperers  |  CLI profile: reyden-whisperers
 
-# 1) Create the governed model service (routes app LLM calls to Claude Opus via the gateway).
+========================================================================
+1) CATALOG + SCHEMA  (see 00_gateway_setup.sql)
+========================================================================
+CREATE CATALOG IF NOT EXISTS reyden_whisperers_catalog;
+CREATE SCHEMA  IF NOT EXISTS reyden_whisperers_catalog.meridian_ai_gateway;
+
+========================================================================
+2) GOVERNED MODEL SERVICE  (programmatic create via the ai-gateway CLI)
+========================================================================
 databricks ai-gateway create-model-service \
-  schemas/reyden_whisperers_catalog.meridian_ai_gateway meridian-rm-gw \
-  --comment "Meridian RM assist — governed UAIG model service (Claude Opus)" \
-  --json '{
-    "config": {"routing": {"destinations": [{
-      "destination_type": "DESTINATION_TYPE_PAY_PER_TOKEN_FOUNDATION_MODEL",
-      "name": "system.ai.databricks-claude-opus-4-8",
-      "pay_per_token_config": {"model": "models/system.ai.databricks-claude-opus-4-8"},
-      "traffic_percentage": 100
-    }]}},
-    "supported_api_types": ["openai/v1/chat/completions"]
-  }' -p reyden-whisperers
+  schemas/reyden_whisperers_catalog.meridian_ai_gateway meridian-rm-gw-acs \
+  --json '{"config":{"routing":{"destinations":[{
+      "destination_type":"DESTINATION_TYPE_PAY_PER_TOKEN_FOUNDATION_MODEL",
+      "name":"system.ai.databricks-claude-opus-4-8",
+      "pay_per_token_config":{"model":"models/system.ai.databricks-claude-opus-4-8"},
+      "traffic_percentage":100}]}},
+     "supported_api_types":["openai/v1/chat/completions"]}' \
+  --profile reyden-whisperers
 
-# Result: model-services/reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw
-# Invoked by the app at:  <workspace>/ai-gateway/mlflow/v1/chat/completions
-#   with model = "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw"
+# Result: model-services/reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs
+# OpenAI-compatible endpoint: {host}/ai-gateway/mlflow/v1/chat/completions  (model = the full 3-part name)
 
-# 2) Custom guardrail function (blocks all-data / unfiltered reads) — see below.
-#    Attached to the model service as a service policy (Governance > Policies).
-CREATE OR REPLACE FUNCTION reyden_whisperers_catalog.meridian_ai_gateway.guard_block_all_data(event VARIANT)
-RETURNS STRUCT<result STRING, reason STRING> LANGUAGE SQL
-RETURN CASE WHEN
-     lower(cast(event as string)) LIKE '%all data%'
-  OR lower(cast(event as string)) LIKE '%all customers%'
-  OR lower(cast(event as string)) LIKE '%every customer%'
-  OR lower(cast(event as string)) LIKE '%entire dataset%'
-  OR lower(cast(event as string)) LIKE '%read everything%'
-  OR lower(cast(event as string)) LIKE '%unfiltered%'
-  OR lower(cast(event as string)) LIKE '%select *%'
-  THEN NAMED_STRUCT('result','deny','reason','Blocked: attempts to read all/unfiltered Lakebase data')
-  ELSE NAMED_STRUCT('result','allow','reason','') END;
+========================================================================
+3) INFERENCE TABLE (auto-capture)  -- full effective config: gateway_model_service_config.json
+========================================================================
+# Enabled on the model service; auto-creates + auto-captures the payload table.
+config.inference_table = {
+  "disabled": false,                                   # false => auto-capture ON
+  "parent": "schemas/reyden_whisperers_catalog.meridian_ai_gateway",
+  "table":  "tables/reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs_payload",
+  "table_name_prefix": "meridian-rm-gw-acs"
+}
+# Rate limits also on the service: 60 req/min + 1024 tok/min (service), 20 req/min (per-user).
 
-# NOTE: model-service governance (inference table, rate limits, usage tracking, and the
-# guardrail service-policy) are separate resources attached via the AI Gateway Governance UI /
-# policies API — the model-service config itself holds only `routing`.
+========================================================================
+4) CUSTOM GUARDRAIL  (UC function, bound as a service policy on the endpoint)
+========================================================================
+# Function defined in 00_gateway_setup.sql:
+#   reyden_whisperers_catalog.meridian_ai_gateway.guard_block_all_data(event VARIANT) RETURNS VARIANT
+# CEL-transpilable pattern: reads event:context.message, phase-guarded to 'request',
+# denies all-data / unfiltered / select-* prompts. Bound as service policy "lakebase_block_policy"
+# (input / pre-call) via the Governance > Policies UI. PII policies (pii-block-input, pii-mask-output)
+# and unsafe-content also attached.
+
+Governance features (inference table, guardrails, rate limits, budgets) are attached to the model
+service as separate securables via the Governance/Policies UI — they are not inline in the
+ai-gateway CLI create payload (which carries only `routing`).
