@@ -50,7 +50,37 @@
       "service_policy": "lakebase_block_policy",
       "enforcement_layer": "gateway",
       "enforced_by_app": false,
-      "model_invoked": false
+      "model_invoked": false,
+      "response": {
+        "id": "databricks-guardrail-block",
+        "object": "chat.completion",
+        "created": 0,
+        "model": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "This request was blocked by the 'lakebase_block_policy' service policy."
+            },
+            "finish_reason": "content_filter"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "databricks_service_policy": {
+          "name": "lakebase_block_policy",
+          "action": "deny",
+          "phase": "pre_call",
+          "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+        }
+      },
+      "request_id": "databricks-guardrail-block",
+      "response_finish_reason": "content_filter",
+      "response_content": "This request was blocked by the 'lakebase_block_policy' service policy."
     },
     {
       "seq": 3,
@@ -152,7 +182,37 @@
       "service_policy": "lakebase_block_policy",
       "enforcement_layer": "gateway",
       "enforced_by_app": false,
-      "model_invoked": false
+      "model_invoked": false,
+      "response": {
+        "id": "databricks-guardrail-block",
+        "object": "chat.completion",
+        "created": 0,
+        "model": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "This request was blocked by the 'lakebase_block_policy' service policy."
+            },
+            "finish_reason": "content_filter"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "databricks_service_policy": {
+          "name": "lakebase_block_policy",
+          "action": "deny",
+          "phase": "pre_call",
+          "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+        }
+      },
+      "request_id": "databricks-guardrail-block",
+      "response_finish_reason": "content_filter",
+      "response_content": "This request was blocked by the 'lakebase_block_policy' service policy."
     },
     {
       "seq": 3,
@@ -173,5 +233,6 @@
       "error_code": "PERMISSION_DENIED"
     }
   ],
-  "note_enforcement": "Guardrail and budget are enforced at the Unity AI Gateway (pre_call), not in the app: blocked calls have model_invoked=false / total_tokens=0. The app code never sees or enforces these decisions."
+  "note_enforcement": "Guardrail and budget are enforced at the Unity AI Gateway (pre_call), not in the app: blocked calls have model_invoked=false / total_tokens=0. The app code never sees or enforces these decisions.",
+  "enforced_by": "gateway"
 }
