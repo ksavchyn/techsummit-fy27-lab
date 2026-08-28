@@ -1,0 +1,17 @@
+{
+  "evidence": "Unity AI Gateway budget enforcement — request rejected once the $0.05 Block threshold was crossed",
+  "endpoint": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+  "http_status": 403,
+  "budget": {
+    "name": "Reyden Whisperers Meridian Chat",
+    "id": "a04b69c0-112c-4f81-82fb-ad08d053bd8a",
+    "resource_type": "Unity AI Gateway",
+    "threshold_usd": 0.05,
+    "enforcement": "block",
+    "tag": "app=meridian-rm"
+  },
+  "response": {
+    "error_code": "PERMISSION_DENIED",
+    "message": "Budget \"Reyden Whisperers Meridian Chat\" (a04b69c0-112c-4f81-82fb-ad08d053bd8a) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget."
+  }
+}

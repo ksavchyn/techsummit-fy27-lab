@@ -1,0 +1,27 @@
+{
+  "id": "databricks-guardrail-block",
+  "object": "chat.completion",
+  "created": 0,
+  "model": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "This request was blocked by the 'lakebase_block_policy' service policy."
+      },
+      "finish_reason": "content_filter"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0
+  },
+  "databricks_service_policy": {
+    "name": "lakebase_block_policy",
+    "action": "deny",
+    "phase": "pre_call",
+    "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "evidence": "Governed Slack MCP invoked through Unity AI Gateway by the coding agent (ucode/Claude Code)",
+  "mcp_service": "system.ai.slack",
+  "gateway_route": "/ai-gateway/mcp-services/system.ai.slack",
+  "source_table": "system.ai_gateway.usage (service_type=MCP_SERVICE)",
+  "call_count": 27,
+  "records": [
+    {
+      "event_time": "2026-08-28 03:31:37",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 03:31:37",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    },
+    {
+      "event_time": "2026-08-28 03:31:36",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 03:03:40",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 03:03:36",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 03:03:32",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 03:03:31",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    },
+    {
+      "event_time": "2026-08-28 03:03:30",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:59:48",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:59:30",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:57:58",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:57:58",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:57:51",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:57:51",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    },
+    {
+      "event_time": "2026-08-28 02:57:50",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:55:56",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:55:55",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:55:55",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    },
+    {
+      "event_time": "2026-08-28 02:55:29",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:55:29",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    },
+    {
+      "event_time": "2026-08-28 02:55:28",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:55:06",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    },
+    {
+      "event_time": "2026-08-28 02:55:06",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:55:05",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:54:26",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:54:25",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "200"
+    },
+    {
+      "event_time": "2026-08-28 02:54:25",
+      "service_type": "MCP_SERVICE",
+      "service_name": "system.ai.slack",
+      "endpoint_name": null,
+      "requester": "kateryna.savchyn@databricks.com",
+      "status_code": "204"
+    }
+  ]
+}

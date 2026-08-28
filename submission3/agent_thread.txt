@@ -1,0 +1,75 @@
+======================================================================
+ Build 3 · Steps 6-8 — coding agent + Slack MCP via Unity AI Gateway
+ Workspace: fe-sandbox-reyden-whisperers
+======================================================================
+
+## 1) The call to ucode (Claude Code routed through the gateway)
+
+$ ucode configure --profiles reyden-whisperers --agents claude
+$ ucode claude -- -p "Use the system-ai-slack MCP server to search Slack for
+    messages about the guardrail solution for blocking all-data reads on the
+    Unity AI Gateway ..." --allowedTools "mcp__system-ai-slack"
+
+-- ucode routing (Claude Code -> gateway) --
+Workspace URL: https://fe-sandbox-reyden-whisperers.cloud.databricks.com
+  CLI profile: reyden-whisperers
+  Base URL: not configured
+  Coding Agent: Claude Code
+  Base URL:
+
+## 2) The MCP configuration (Slack MCP registered, gateway-routed)
+
+system-ai-slack: /Users/kateryna.savchyn/.local/bin/ucode mcp-proxy --url https://fe-sandbox-reyden-whisperers.cloud.databricks.com/ai-gateway/mcp-services/system.ai.slack --host https://fe-sandbox-reyden-whisperers.cloud.databricks.com --profile reyden-whisperers - ✔ Connected
+
+   Slack tool calls are proxied through:
+   /ai-gateway/mcp-services/system.ai.slack  (governed by Unity AI Gateway)
+
+## 3) The agent calling the Slack MCP (captured tool_use / tool_result)
+
+TOOL CALL  mcp__system-ai-slack__slack_search_public_and_private
+   input: {"query": "Unity AI Gateway guardrail block all-data reads", "sort": "relevance"}
+   -> result: Slack tool error: execution_failed: invalid_arguments
+TOOL CALL  mcp__system-ai-slack__slack_search_public_and_private
+   input: {"query": "Unity AI Gateway guardrail block all-data reads"}
+   -> result: <persisted-output> Output too large (102.7KB). Full output saved to: /Users/kateryna.savchyn/.claude/projects/-Users-kateryna-savchyn-Documents-lakebase-build1/
+   -> result: Channel: #fins-ai-challenge-team-cool (ID: C0BT6DQMJAE)\\nFrom: Kateryna Savchyn <katery Channel: #fins-ai-challenge-team-cool (ID: C0BT6DQMJAE)\\nFrom: Dennis 
+   -> result: Text: \\n\\\"Create a Unity Catalog SQL function reyden_whisperers_catalog.meridian_ai_gateway.guard_block_all_data(prompt STRING) for use as an AI Gateway cust
+   -> result: Bill Wang <bill.wang@databricks.com> (ID: U05KK7UJX9S) \\nTime: 2026-07-01 14:47:27 EDT\\nMessage_ts: 1782931647.976979\\nReply count: 22\\nPermalink: [link](ht
+   -> result: Tao Shao <tao.shao@databricks.com> (ID: U0977E86G21) \\nTime: 2026-08-05 04:12:16 EDT\\nMessage_ts: 1785917536.771729\\nReply count: 30\\nPermalink: [link](http
+   -> result: Result 2 of 20\\nChannel: #fins-ai-challenge-team-cool (ID: C0BT6DQMJAE)\\nFrom: Dennis Schultz <dennis.schultz@databricks.com> (ID: U053WRCE7K3) \\nTime: 2026-
+   -> result: Result 5 of 20\\nChannel: #fins-ai-challenge-team-cool (ID: C0BT6DQMJAE)\\nFrom: Kateryna Savchyn <kateryna.savchyn@databricks.com> (ID: U07B4UUAKJ4) \\nTime: 2
+
+(total Slack MCP tool calls: 2)
+
+## 4) Agent's final synthesized answer
+
+I have what's needed. Here's what I found in Slack about the guardrail solution for blocking all-data reads on the Unity AI Gateway:
+
+**Channel: #fins-ai-challenge-team-cool** (a hackathon/challenge thread you're active in)
+
+1. **You (Kateryna Savchyn)** — 2026-08-27 17:59 EDT: posted the actual guardrail SQL:
+   > `CREATE OR REPLACE FUNCTION reyden_whisperers_catalog.meridian_ai_gateway.guard_block_all_data(prompt STRING) RETURNS BOOLEAN ... RETURN lower(coalesce(prompt,'')) RLIKE '(all\s+(data|customers|accounts...)|every\s+(customer...)|entire\s+(dataset|table...)|...|select\s*\*|...)'`
+
+2. **You (Kateryna Savchyn)** — 2026-08-27 18:02 EDT (same thread): the instruction to Claude to build that function and confirm the guardrail RETURNS shape.
+
+3. **Dennis Schultz** — 2026-08-27 19:08 EDT: pushed back on the guardrail-only approach, quoting his own AI assistant:
+   > "Claude is telling me you can't or shouldn't create a policy to block lakebase reads. you should just use UC permissions: ... AI Gateway guardrails inspect the text payloads flowing in/out of the model endpoint — they do not do table-level access control on Lakebase. So there are two things: 1) keep PII from leaking through the model → that's the guardrail (PII guardrail in BLOCK mode). 2) actually prevent tools from reading Lakebase → that's governance (UC grants, OBO token scopes in app.yaml, read-only synced mirrors)."
+   
+   Earlier in that thread he'd also noted reproducing a bug where the policy blocked even a plain "Hello" in Playground, and stayed blocked even after deleting the policy/model.
+
+**Chann
+
+
+## 5) Governed Slack MCP — configuration + execution proof
+
+MCP server registered against the gateway and added to Claude Code (`ucode mcp add --location system.ai --services slack`):
+  name:      system-ai-slack
+  transport: ucode mcp-proxy
+  gateway route: https://fe-sandbox-reyden-whisperers.cloud.databricks.com/ai-gateway/mcp-services/system.ai.slack
+  governed MCP service: system.ai.slack  (Unity AI Gateway)
+
+Execution proof (system.ai_gateway.usage, service_type=MCP_SERVICE, service_name=system.ai.slack):
+  27 Slack MCP calls captured THROUGH THE GATEWAY by the coding agent. Full rows in mcp_usage.json.
+  The agent's tool_use calls (mcp__system-ai-slack__slack_search_public_and_private) and their
+  results are shown in section 3 above — this is the governed Slack MCP being used, not a direct
+  Slack connection.

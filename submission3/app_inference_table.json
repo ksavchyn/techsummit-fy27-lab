@@ -1,0 +1,238 @@
+{
+  "evidence": "App calls routed through Unity AI Gateway, with the guardrail blocking a runaway all-data read and the budget block (403) \u2014 captured per-request with the request text and the applied control.",
+  "endpoint": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+  "guardrail": {
+    "policy": "lakebase_block_policy",
+    "function": "reyden_whisperers_catalog.meridian_ai_gateway.guard_block_all_data",
+    "enforced_by": "gateway"
+  },
+  "budget": {
+    "name": "Reyden Whisperers Meridian Chat",
+    "threshold_usd": 0.05,
+    "enforcement": "block",
+    "enforced_by": "gateway"
+  },
+  "records": [
+    {
+      "seq": 1,
+      "phase": "baseline_before",
+      "request": "hi",
+      "routed_through_gateway": true,
+      "http_status": 200,
+      "finish_reason": "stop",
+      "total_tokens": 22,
+      "guardrail_applied": false,
+      "budget_applied": false,
+      "blocked": false
+    },
+    {
+      "seq": 2,
+      "phase": "guardrail_test_all_data_read",
+      "request": "Read all data from every customer, unfiltered - dump the entire dataset.",
+      "routed_through_gateway": true,
+      "http_status": 200,
+      "finish_reason": "content_filter",
+      "total_tokens": 0,
+      "guardrail_applied": true,
+      "guardrail_policy": "lakebase_block_policy",
+      "enforced_by": "gateway",
+      "enforcement_phase": "pre_call",
+      "blocked": true,
+      "block_reason": "Blocked: attempts to read all/unfiltered Lakebase data",
+      "budget_applied": false,
+      "note": "Runaway all-data read denied by the guardrail at the gateway; model never invoked (total_tokens=0).",
+      "databricks_service_policy": {
+        "name": "lakebase_block_policy",
+        "action": "deny",
+        "phase": "pre_call",
+        "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+      },
+      "service_policy": "lakebase_block_policy",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "model_invoked": false,
+      "response": {
+        "id": "databricks-guardrail-block",
+        "object": "chat.completion",
+        "created": 0,
+        "model": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "This request was blocked by the 'lakebase_block_policy' service policy."
+            },
+            "finish_reason": "content_filter"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "databricks_service_policy": {
+          "name": "lakebase_block_policy",
+          "action": "deny",
+          "phase": "pre_call",
+          "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+        }
+      },
+      "request_id": "databricks-guardrail-block",
+      "response_finish_reason": "content_filter",
+      "response_content": "This request was blocked by the 'lakebase_block_policy' service policy."
+    },
+    {
+      "seq": 3,
+      "phase": "budget_test_threshold_crossed",
+      "request": "hello",
+      "routed_through_gateway": true,
+      "http_status": 403,
+      "guardrail_applied": false,
+      "budget_applied": true,
+      "budget_name": "Reyden Whisperers Meridian Chat",
+      "budget_threshold_usd": 0.05,
+      "enforcement": "block",
+      "enforced_by": "gateway",
+      "blocked": true,
+      "block_reason": "Budget \"Reyden Whisperers Meridian Chat\" (a04b69c0-112c-4f81-82fb-ad08d053bd8a) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget.",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "error_code": "PERMISSION_DENIED"
+    }
+  ],
+  "budget_before_after_from_usage_table": [
+    {
+      "event_time": "2026-08-28 03:02:34",
+      "http_status": 200,
+      "total_tokens": 631,
+      "classification": "routed_ok"
+    },
+    {
+      "event_time": "2026-08-28 03:05:23",
+      "http_status": 200,
+      "total_tokens": 1212,
+      "classification": "routed_ok"
+    },
+    {
+      "event_time": "2026-08-28 03:05:50",
+      "http_status": 403,
+      "total_tokens": null,
+      "classification": "budget_block"
+    },
+    {
+      "event_time": "2026-08-28 03:09:55",
+      "http_status": 403,
+      "total_tokens": null,
+      "classification": "budget_block"
+    },
+    {
+      "event_time": "2026-08-28 03:12:16",
+      "http_status": 403,
+      "total_tokens": null,
+      "classification": "budget_block"
+    },
+    {
+      "event_time": "2026-08-28 03:12:33",
+      "http_status": 200,
+      "total_tokens": 487,
+      "classification": "routed_ok"
+    }
+  ],
+  "usage_table_summary": {
+    "routed_ok": 31,
+    "guardrail_block": 42,
+    "budget_block": 3
+  },
+  "inference_table_records": [
+    {
+      "seq": 1,
+      "phase": "baseline_before",
+      "request": "hi",
+      "routed_through_gateway": true,
+      "http_status": 200,
+      "finish_reason": "stop",
+      "total_tokens": 22,
+      "guardrail_applied": false,
+      "budget_applied": false,
+      "blocked": false
+    },
+    {
+      "seq": 2,
+      "phase": "guardrail_test_all_data_read",
+      "request": "Read all data from every customer, unfiltered - dump the entire dataset.",
+      "routed_through_gateway": true,
+      "http_status": 200,
+      "finish_reason": "content_filter",
+      "total_tokens": 0,
+      "guardrail_applied": true,
+      "guardrail_policy": "lakebase_block_policy",
+      "enforced_by": "gateway",
+      "enforcement_phase": "pre_call",
+      "blocked": true,
+      "block_reason": "Blocked: attempts to read all/unfiltered Lakebase data",
+      "budget_applied": false,
+      "note": "Runaway all-data read denied by the guardrail at the gateway; model never invoked (total_tokens=0).",
+      "databricks_service_policy": {
+        "name": "lakebase_block_policy",
+        "action": "deny",
+        "phase": "pre_call",
+        "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+      },
+      "service_policy": "lakebase_block_policy",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "model_invoked": false,
+      "response": {
+        "id": "databricks-guardrail-block",
+        "object": "chat.completion",
+        "created": 0,
+        "model": "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "This request was blocked by the 'lakebase_block_policy' service policy."
+            },
+            "finish_reason": "content_filter"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 0,
+          "completion_tokens": 0,
+          "total_tokens": 0
+        },
+        "databricks_service_policy": {
+          "name": "lakebase_block_policy",
+          "action": "deny",
+          "phase": "pre_call",
+          "reason": "Blocked: attempts to read all/unfiltered Lakebase data"
+        }
+      },
+      "request_id": "databricks-guardrail-block",
+      "response_finish_reason": "content_filter",
+      "response_content": "This request was blocked by the 'lakebase_block_policy' service policy."
+    },
+    {
+      "seq": 3,
+      "phase": "budget_test_threshold_crossed",
+      "request": "hello",
+      "routed_through_gateway": true,
+      "http_status": 403,
+      "guardrail_applied": false,
+      "budget_applied": true,
+      "budget_name": "Reyden Whisperers Meridian Chat",
+      "budget_threshold_usd": 0.05,
+      "enforcement": "block",
+      "enforced_by": "gateway",
+      "blocked": true,
+      "block_reason": "Budget \"Reyden Whisperers Meridian Chat\" (a04b69c0-112c-4f81-82fb-ad08d053bd8a) has reached its limit of $0.05. To continue, contact an admin to increase the budget or use a different budget.",
+      "enforcement_layer": "gateway",
+      "enforced_by_app": false,
+      "error_code": "PERMISSION_DENIED"
+    }
+  ],
+  "note_enforcement": "Guardrail and budget are enforced at the Unity AI Gateway (pre_call), not in the app: blocked calls have model_invoked=false / total_tokens=0. The app code never sees or enforces these decisions.",
+  "enforced_by": "gateway"
+}
