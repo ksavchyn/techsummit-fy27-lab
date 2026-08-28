@@ -1,0 +1,30 @@
+* c6ee66d (HEAD -> dev) Build 2: executed Lakebase Search notebook + refreshed evidence
+* b827171 Build 2 app: fix live assist + act, add clickable Genie pills
+* c124709 (origin/dev) Build 2 app: route assist through governed UAIG endpoint (meridian-rm-chat via /ai-gateway/mlflow/v1, forwarded user token); customer-360 retention-radar skin (header, radar background, KPI icons, hero band)
+* f6cd84d Build 2 app: wire assist chat to governed gateway endpoint meridian-rm-assist-chat (Build 3 swap) — redeploy pending app-SP CAN_QUERY grant
+* 0253437 Build 2: refresh submission2.zip
+* a7d9387 Build 2: refresh git_history.txt (app layers 0-3)
+* 7e581f6 Build 2 app · layer 3 Act: propose -> human approve/correct/reject -> write ops.retention_actions + workflow_events; closed-loop queue refresh
+* 744a809 Build 2 app · layer 2 Assist: LLM why-flagged + what-if + memo (hybrid Lakebase Search retrieval over ops.rm_notes) via claude-opus-4-8; Genie tab
+* 3a3c4c6 Build 2 app · layer 1 Visualize: ranked/flagged at-risk queue (decision_priority) reading synced gold + live case state
+* f5e056b Build 2 app · layer 0: scaffold AppKit (lakebase+genie+serving) for meridian-rm
+* b122822 Add gateway endpoint handoff for platform eng (Build 3 prep)
+* 6adb8d8 Build 2: submission2.zip
+* 9d48064 Build 2: refresh git_history.txt
+* 68a3bbb Build 2 · layer 3: Act — write-back with human approval + closed loop; hero question + exports
+* 879988f Build 2 · layer 2: Assist — LLM explain + what-if + memo drafted from Lakebase Search retrieval
+* 4b6baf6 Build 2 · layer 1: Visualize — ranked/flagged at-risk live view + system-update trigger
+* 6b58df8 Build 2 · layer 0: writable action + workflow-state tables (ops.retention_actions, ops.workflow_events)
+| * 98fb9ed (origin/main, main) Update submission1.zip build artifact
+| * 410f1e6 Refresh git_history.txt
+| * 56d7d45 Add executed build_notebook.ipynb (execution evidence) + explicit branch-creation code
+| * 35c8e79 Refresh git_history.txt
+| * 53bfeda Add execution evidence to submission1: operational schema, search setup, scale-to-zero, branching, forecast scenario
+| * 61c6ac4 Add sync-as-code (DAB + reverse-sync CDF spec) and submission1 evidence
+| *   a0b9def Promote: merge dev (priority_score agentic change) into main
+| |\  
+| |/  
+|/|   
+* | 60bebef Agentic change: add derived priority_score to ops.rm_cases
+|/  
+* 0b65242 Baseline: ops schema, search columns, sync scripts, README

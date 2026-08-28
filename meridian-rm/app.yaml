@@ -1,0 +1,12 @@
+command: ['npm', 'run', 'start']
+env:
+  - name: DATABRICKS_GENIE_SPACE_ID
+    valueFrom: genie-space
+  - name: LAKEBASE_ENDPOINT
+    valueFrom: postgres
+  - name: DATABRICKS_SERVING_ENDPOINT_NAME
+    valueFrom: serving-endpoint
+  - name: DATABRICKS_EMBEDDINGS_ENDPOINT_NAME
+    valueFrom: embeddings-endpoint
+  - name: GATEWAY_CHAT_MODEL
+    value: reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw-acs

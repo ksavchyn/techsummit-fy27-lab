@@ -1,0 +1,38 @@
+[
+  {
+    "event_id": 1,
+    "event_type": "trigger",
+    "trigger_source": "schedule",
+    "customer_id": null,
+    "action_id": null,
+    "detail": "Nightly retention scoring run: ranked open at-risk customers by revenue_at_risk x attrition_risk_score",
+    "created_at": "2026-08-27T20:19:35.839578+00:00"
+  },
+  {
+    "event_id": 2,
+    "event_type": "trigger",
+    "trigger_source": "system_update",
+    "customer_id": null,
+    "action_id": null,
+    "detail": "Synced-table refresh detected; re-ranked at-risk queue and re-flagged ACT NOW cohort",
+    "created_at": "2026-08-27T20:21:11.779723+00:00"
+  },
+  {
+    "event_id": 3,
+    "event_type": "decision",
+    "trigger_source": "system_update",
+    "customer_id": "CUST-0001955",
+    "action_id": 1,
+    "detail": "Action PROPOSED by assistant, pending human approval",
+    "created_at": "2026-08-27T20:24:51.900132+00:00"
+  },
+  {
+    "event_id": 4,
+    "event_type": "decision",
+    "trigger_source": "user_open",
+    "customer_id": "CUST-0001955",
+    "action_id": 1,
+    "detail": "Action APPROVED and committed by Alan Silva (RM)",
+    "created_at": "2026-08-27T20:24:52.402665+00:00"
+  }
+]
