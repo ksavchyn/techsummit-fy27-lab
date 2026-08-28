@@ -30,7 +30,7 @@ across three layers:
 
 Path: `meridian-rm/` (app DAB `meridian-rm`). Built layer-by-layer on `dev` off `main`.
 
-## Build 3 — Unity AI Gateway (governance layer, in progress)
+## Build 3 — Unity AI Gateway (governance layer)
 
 Makes the app's AI spend bounded, visible, and attributable, and extends governance to
 developer tooling:
@@ -39,7 +39,7 @@ developer tooling:
 - budgets that block calls over a low threshold
 - coding-agent (ucode) and Slack MCP traffic routed through the gateway
 
-Path: `submission3/`. Active on `dev`.
+Path: `submission3/`.
 
 ## Repo layout
 
@@ -50,12 +50,12 @@ meridian-rm/    Build 2 Databricks App DAB (meridian-rm)
 scripts/        baseline / helper scripts
 submission1/    Build 1 evidence bundle
 submission2/    Build 2 evidence bundle
-submission3/    Build 3 evidence bundle (in progress)
+submission3/    Build 3 evidence bundle
 ```
 
 The two bundles are independent — each has its own `databricks.yml` and deploys on its own.
 
 ## Branches
 
-- `main` — finalized builds (Build 1 + Build 2)
-- `dev` — active development (Build 3)
+- `main` — all builds complete (Build 1 + Build 2 + Build 3)
+- `dev` — in sync with `main`
