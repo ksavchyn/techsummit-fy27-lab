@@ -1,0 +1,39 @@
+UNITY AI GATEWAY — model service + inference table (programmatic creation)
+Build 3 · Step 3. Workspace: fe-sandbox-reyden-whisperers.cloud.databricks.com
+
+# 1) Create the governed model service (routes app LLM calls to Claude Opus via the gateway).
+databricks ai-gateway create-model-service \
+  schemas/reyden_whisperers_catalog.meridian_ai_gateway meridian-rm-gw \
+  --comment "Meridian RM assist — governed UAIG model service (Claude Opus)" \
+  --json '{
+    "config": {"routing": {"destinations": [{
+      "destination_type": "DESTINATION_TYPE_PAY_PER_TOKEN_FOUNDATION_MODEL",
+      "name": "system.ai.databricks-claude-opus-4-8",
+      "pay_per_token_config": {"model": "models/system.ai.databricks-claude-opus-4-8"},
+      "traffic_percentage": 100
+    }]}},
+    "supported_api_types": ["openai/v1/chat/completions"]
+  }' -p reyden-whisperers
+
+# Result: model-services/reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw
+# Invoked by the app at:  <workspace>/ai-gateway/mlflow/v1/chat/completions
+#   with model = "reyden_whisperers_catalog.meridian_ai_gateway.meridian-rm-gw"
+
+# 2) Custom guardrail function (blocks all-data / unfiltered reads) — see below.
+#    Attached to the model service as a service policy (Governance > Policies).
+CREATE OR REPLACE FUNCTION reyden_whisperers_catalog.meridian_ai_gateway.guard_block_all_data(event VARIANT)
+RETURNS STRUCT<result STRING, reason STRING> LANGUAGE SQL
+RETURN CASE WHEN
+     lower(cast(event as string)) LIKE '%all data%'
+  OR lower(cast(event as string)) LIKE '%all customers%'
+  OR lower(cast(event as string)) LIKE '%every customer%'
+  OR lower(cast(event as string)) LIKE '%entire dataset%'
+  OR lower(cast(event as string)) LIKE '%read everything%'
+  OR lower(cast(event as string)) LIKE '%unfiltered%'
+  OR lower(cast(event as string)) LIKE '%select *%'
+  THEN NAMED_STRUCT('result','deny','reason','Blocked: attempts to read all/unfiltered Lakebase data')
+  ELSE NAMED_STRUCT('result','allow','reason','') END;
+
+# NOTE: model-service governance (inference table, rate limits, usage tracking, and the
+# guardrail service-policy) are separate resources attached via the AI Gateway Governance UI /
+# policies API — the model-service config itself holds only `routing`.
